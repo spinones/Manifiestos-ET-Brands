@@ -927,7 +927,7 @@
 
   <div class="card">
     <div class="settings-section">
-      <h3>☁️ Sincronización con Google Sheets (registro central)</h3>
+      <h3>☁️ Sincronización con Google Sheets (registro central) · v3.1</h3>
       <div class="form-group">
         <label>URL del Google Apps Script (webhook)</label>
         <input type="text" id="gSheetUrl" placeholder="https://script.google.com/macros/s/.../exec">
@@ -1854,7 +1854,7 @@ async function pullLedgerFromGSheets(opts) {
       const tracking = String(r.tracking || '').trim();
       if (!tracking) return;
       const fechaISO = isoF(r.fecha);
-      const id = String(r.id || (fechaISO + '-' + r.manifiestoNum));
+      const id = (r.id && String(r.id).trim()) ? String(r.id) : (fechaISO + '|' + r.manifiestoNum + '|' + (r.chofer || '') + '|' + (r.transportista || ''));
       if (!byId[id]) {
         byId[id] = {
           id: id, num: r.manifiestoNum, fecha: fechaISO,
