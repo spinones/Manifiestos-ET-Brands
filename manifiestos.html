@@ -1,0 +1,2468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ET Brands — Manifiestos de Despacho</title>
+<style>
+  :root {
+    --primary: #FF4713;
+    --primary-dark: #1C1C1C;
+    --primary-light: #fff3ef;
+    --success: #0e9f6e;
+    --success-light: #def7ec;
+    --danger: #e02424;
+    --danger-light: #fde8e8;
+    --warning: #c27803;
+    --warning-light: #fdf6b2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--gray-100);
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* ---- TOPBAR ---- */
+  .topbar {
+    background: var(--primary-dark);
+    color: white;
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-brand {
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topbar-brand svg { opacity: 0.9; }
+  .topbar-nav { display: flex; gap: 4px; }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.75);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+  .nav-btn.active { background: rgba(255,255,255,0.2); color: white; }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+  .screen.active { display: block; }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ---- FORM ELEMENTS ---- */
+  label { font-size: 13px; font-weight: 600; color: var(--gray-600); display: block; margin-bottom: 6px; }
+  input[type="text"], input[type="date"], select, textarea {
+    width: 100%;
+    border: 1.5px solid var(--gray-300);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 15px;
+    color: var(--gray-800);
+    outline: none;
+    transition: border-color 0.15s;
+    background: white;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(255,71,19,0.15);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-hint { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+  /* ---- BUTTONS ---- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #057a55; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #c81e1e; }
+  .btn-outline {
+    background: white;
+    color: var(--gray-700);
+    border: 1.5px solid var(--gray-300);
+  }
+  .btn-outline:hover { background: var(--gray-50); border-color: var(--gray-400); }
+  .btn-lg { padding: 14px 28px; font-size: 16px; border-radius: 10px; }
+  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 6px; }
+
+  /* ---- SETUP SCREEN ---- */
+  .setup-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .setup-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+  }
+  .setup-header p { color: var(--gray-600); font-size: 16px; }
+
+  .chofer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .chofer-card {
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    background: white;
+  }
+  .chofer-card:hover { border-color: var(--primary); background: var(--primary-light); }
+  .chofer-card.selected { border-color: var(--primary); background: var(--primary-light); border-width: 2.5px; }
+  .chofer-card .chofer-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #1C1C1C;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .chofer-card .chofer-name { font-weight: 600; font-size: 14px; color: var(--gray-800); }
+  .chofer-card .chofer-count { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+  /* ---- SCAN SCREEN ---- */
+  .scan-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .scan-info h2 { font-size: 20px; font-weight: 700; }
+  .scan-info p { color: var(--gray-600); font-size: 14px; margin-top: 2px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 3px solid var(--gray-300);
+  }
+  .stat-box.total { border-top-color: var(--primary); }
+  .stat-box.courier { border-top-color: #898A8D; }
+  .stat-box.dupes { border-top-color: var(--warning); }
+  .stat-num {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-box.total .stat-num { color: var(--primary); }
+  .stat-box.courier .stat-num { color: #898A8D; font-size: 16px; line-height: 1.3; padding-top: 8px; font-weight: 700; }
+  .stat-box.dupes .stat-num { color: var(--warning); }
+  .stat-label { font-size: 12px; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .scan-input-wrap {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid var(--primary-light);
+  }
+  .scan-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .scan-label .pulse {
+    width: 8px; height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  #scanInput {
+    font-size: 18px;
+    font-family: monospace;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+  .scan-feedback {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+  .scan-feedback.ok { background: var(--success-light); color: #065f46; display: flex; }
+  .scan-feedback.error { background: var(--danger-light); color: #9b1c1c; display: flex; }
+  .scan-feedback.warn { background: var(--warning-light); color: #92400e; display: flex; }
+
+  /* ---- SCANNED TABLE ---- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th {
+    background: var(--gray-100);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--gray-600);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  tbody tr { border-bottom: 1px solid var(--gray-100); transition: background 0.1s; }
+  tbody tr:hover { background: var(--gray-50); }
+  tbody td { padding: 10px 12px; color: var(--gray-700); }
+  tbody td.mono { font-family: monospace; font-size: 13px; letter-spacing: 0.5px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-recibelo { background: #ede9fe; color: #6d28d9; }
+  .badge-despachalo { background: var(--success-light); color: #065f46; }
+  .badge-otro { background: var(--warning-light); color: #92400e; }
+  .badge-sts { background: var(--gray-100); color: var(--gray-600); }
+
+  .row-new td { animation: rowFlash 0.5s ease; }
+  @keyframes rowFlash {
+    0% { background: var(--success-light); }
+    100% { background: transparent; }
+  }
+
+  /* Delete button in table */
+  .btn-delete-row {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-400);
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.15s;
+  }
+  .btn-delete-row:hover { color: var(--danger); }
+
+  /* ---- HISTORY SCREEN ---- */
+  .history-item {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .history-info { flex: 1; }
+  .history-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .history-meta { font-size: 13px; color: var(--gray-500); display: flex; gap: 16px; flex-wrap: wrap; }
+  .history-meta span { display: flex; align-items: center; gap: 4px; }
+  .history-actions { display: flex; gap: 8px; }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-400);
+  }
+  .empty-state svg { opacity: 0.3; margin-bottom: 16px; }
+  .empty-state p { font-size: 16px; font-weight: 500; }
+
+  /* ---- SETTINGS SCREEN ---- */
+  .settings-section { margin-bottom: 28px; }
+  .settings-section h3 { font-size: 15px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-200); }
+
+  /* ---- PRINT / DOCUMENT ---- */
+  @media print {
+    body * { visibility: hidden; }
+    #printDoc, #printDoc * { visibility: visible; }
+    #printDoc {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      background: white;
+      padding: 0;
+    }
+  }
+  #printDoc {
+    display: none;
+    font-family: Arial, sans-serif;
+  }
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #FF4713;
+  }
+  .print-company { font-size: 22px; font-weight: 800; color: #1C1C1C; }
+  .print-doc-title { font-size: 14px; color: #6b7280; margin-top: 2px; }
+  .print-meta { text-align: right; font-size: 13px; color: #374151; line-height: 1.6; }
+  .print-meta strong { font-size: 15px; display: block; color: #111827; }
+  .print-section { margin-bottom: 24px; }
+  .print-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+    margin-bottom: 10px;
+  }
+  .print-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .print-table th {
+    background: #f3f4f6;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid #e5e7eb;
+  }
+  .print-table td {
+    padding: 7px 10px;
+    border: 1px solid #e5e7eb;
+    font-family: 'Courier New', monospace;
+  }
+  .print-table tr:nth-child(even) td { background: #f9fafb; }
+  .print-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .print-summary-box {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .print-summary-box .ps-num { font-size: 28px; font-weight: 800; color: #FF4713; }
+  .print-summary-box .ps-label { font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase; }
+  .print-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 40px;
+  }
+  .signature-box {
+    border-top: 1.5px solid #374151;
+    padding-top: 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #374151;
+  }
+  .signature-name { font-weight: 700; margin-top: 4px; }
+  .print-footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: center;
+  }
+
+  /* ---- MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: 28px;
+    width: min(500px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+
+  /* ---- DUPLICATE WARNING MODAL ---- */
+  #modalDupeWarn { z-index: 300; background: rgba(0,0,0,0.75); }
+  .dupe-modal {
+    background: white;
+    border-radius: 16px;
+    width: min(520px, 94vw);
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    animation: dupeIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes dupeIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  .dupe-banner {
+    background: #FF4713;
+    padding: 28px 24px 22px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .dupe-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      rgba(0,0,0,0.07) 0px, rgba(0,0,0,0.07) 10px,
+      transparent 10px, transparent 20px
+    );
+  }
+  .dupe-banner-icon {
+    font-size: 64px;
+    line-height: 1;
+    display: block;
+    margin-bottom: 12px;
+    position: relative;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    animation: shake 0.5s ease 0.2s;
+  }
+  @keyframes shake {
+    0%,100% { transform: rotate(0deg); }
+    20%      { transform: rotate(-8deg); }
+    40%      { transform: rotate(8deg); }
+    60%      { transform: rotate(-5deg); }
+    80%      { transform: rotate(5deg); }
+  }
+  .dupe-banner-title {
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  .dupe-banner-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 6px;
+    position: relative;
+    font-weight: 500;
+  }
+  .dupe-body {
+    padding: 24px;
+  }
+  .dupe-detail-box {
+    background: #fff8f6;
+    border: 2px solid #FF4713;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .dupe-detail-box .dupe-num {
+    font-family: monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1C1C1C;
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+  .dupe-detail-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 6px;
+  }
+  .dupe-detail-row strong { color: #1C1C1C; }
+  .dupe-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .btn-dupe-ok {
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    transition: background 0.15s;
+  }
+  .btn-dupe-ok:hover { background: #057a55; }
+  .btn-dupe-remove {
+    background: white;
+    color: var(--danger);
+    border: 2px solid var(--danger);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    line-height: 1.3;
+    transition: all 0.15s;
+  }
+  .btn-dupe-remove:hover { background: var(--danger-light); }
+
+  /* ---- UTILS ---- */
+  .flex { display: flex; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .justify-between { justify-content: space-between; }
+  .items-center { align-items: center; }
+  .mt-4 { margin-top: 16px; }
+  .text-gray { color: var(--gray-500); }
+  .text-sm { font-size: 13px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+
+  /* sync status */
+  .sync-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: var(--gray-100);
+    color: var(--gray-600);
+    cursor: pointer;
+    user-select: none;
+  }
+  .sync-indicator.synced { background: var(--success-light); color: #065f46; }
+  .sync-indicator.syncing { background: var(--warning-light); color: #92400e; }
+  .sync-indicator.error { background: var(--danger-light); color: #9b1c1c; }
+
+  /* ---- DESPACHO BUTTONS ---- */
+  .despacho-btn {
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 16px 12px;
+    cursor: pointer;
+    background: white;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: inherit;
+    width: 100%;
+  }
+  .despacho-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+  .despacho-btn.selected { border-color: var(--primary); background: var(--primary-light); border-width: 2.5px; }
+
+  /* ---- COURIER CARDS ---- */
+  .courier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+  }
+  .courier-card {
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 14px 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    background: white;
+  }
+  .courier-card:hover { border-color: var(--primary); background: var(--primary-light); }
+  .courier-card.selected { border-color: var(--primary); background: var(--primary-light); border-width: 2.5px; }
+  .courier-card .courier-icon { font-size: 24px; margin-bottom: 6px; }
+  .courier-card .courier-name { font-weight: 600; font-size: 13px; color: var(--gray-800); }
+
+  /* ---- ET BRANDS LOGO (topbar) ---- */
+  .etb-logo { display: flex; align-items: center; gap: 14px; }
+  .etb-logo-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); }
+  .etb-logo-subtitle { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 500; }
+
+  /* ---- ORDENES SCREEN ---- */
+  .ordenes-drop-zone {
+    border: 2px dashed var(--gray-300);
+    border-radius: 12px;
+    padding: 36px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray-50);
+    margin-bottom: 16px;
+  }
+  .ordenes-drop-zone.dragover { border-color: var(--primary); background: #fff5f2; }
+  .ordenes-drop-zone-icon { font-size: 36px; margin-bottom: 8px; }
+  .ordenes-drop-zone-text { font-size: 15px; font-weight: 600; color: var(--gray-700); }
+  .ordenes-drop-zone-sub { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+  .ordenes-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .ordenes-stat { background: white; border: 1px solid var(--gray-200); border-radius: 10px; padding: 16px; text-align: center; }
+  .ordenes-stat-num { font-size: 32px; font-weight: 800; line-height: 1; }
+  .ordenes-stat-label { font-size: 11px; color: var(--gray-500); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ordenes-stat.total .ordenes-stat-num { color: var(--gray-800); }
+  .ordenes-stat.ok .ordenes-stat-num { color: #16a34a; }
+  .ordenes-stat.pending .ordenes-stat-num { color: var(--primary); }
+  .ordenes-filter-row { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
+  .ordenes-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; cursor: pointer; border: none; }
+  .ordenes-badge.all { background: var(--gray-100); color: var(--gray-700); }
+  .ordenes-badge.ok-badge { background: #dcfce7; color: #15803d; }
+  .ordenes-badge.pend-badge { background: #fff7ed; color: #c2410c; }
+  .ordenes-badge.active-filter { box-shadow: 0 0 0 2px var(--primary); }
+  .ordenes-list { max-height: 420px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: 8px; }
+  .ordenes-row { display: flex; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--gray-100); font-size: 13px; gap: 10px; }
+  .ordenes-row:last-child { border-bottom: none; }
+  .ordenes-row.row-ok { background: #f0fdf4; }
+  .ordenes-row.row-pend { background: white; }
+  .ordenes-row-num { font-family: monospace; font-size: 13px; flex: 1; }
+  .ordenes-row-status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; white-space: nowrap; }
+  .ordenes-row-status.ok { background: #dcfce7; color: #15803d; }
+  .ordenes-row-status.pend { background: #ffedd5; color: #c2410c; }
+  .ordenes-row-manif { font-size: 11px; color: var(--gray-400); white-space: nowrap; }
+  .ordenes-progress-bar { height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+  .ordenes-progress-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 4px; transition: width 0.4s ease; }
+
+  /* ---- CÁMARA ---- */
+  #cameraReader { width: 100%; border-radius: 10px; overflow: hidden; background: #000; min-height: 220px; }
+  #cameraReader video { border-radius: 10px; }
+  .cam-scan-btn { width: 100%; justify-content: center; margin-top: 12px; }
+
+  /* ---- RESPONSIVE / MÓVIL ---- */
+  @media (max-width: 640px) {
+    .topbar { padding: 8px 12px; height: auto; min-height: 52px; flex-wrap: wrap; gap: 6px; }
+    .topbar-nav { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+    .nav-btn { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+    .etb-logo-subtitle, .etb-logo-divider { display: none; }
+    .screen { padding: 18px 12px; }
+    input[type="text"], input[type="date"], select, textarea { font-size: 16px; } /* evita zoom en iOS */
+    .form-row { grid-template-columns: 1fr; }
+    .setup-header h1 { font-size: 22px; }
+    .setup-header p { font-size: 14px; }
+    .scan-header { flex-direction: column; align-items: stretch; }
+    .scan-header .flex { flex-wrap: wrap; }
+    .scan-header .btn { flex: 1; justify-content: center; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .btn-lg { width: 100%; justify-content: center; }
+    .chofer-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .ordenes-stat-grid { grid-template-columns: 1fr 1fr; }
+    .dupe-actions { grid-template-columns: 1fr; }
+    .modal { padding: 20px 18px; }
+    .history-card .btn { flex: 1; justify-content: center; }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand etb-logo">
+    <svg width="90" height="34" viewBox="0 0 90 34" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="16" height="4" fill="white"/>
+      <rect x="0" y="0" width="4" height="22" fill="white"/>
+      <rect x="0" y="9" width="12" height="4" fill="white"/>
+      <rect x="0" y="18" width="16" height="4" fill="white"/>
+      <rect x="20" y="0" width="18" height="4" fill="#898A8D"/>
+      <rect x="26" y="0" width="6" height="22" fill="#898A8D"/>
+      <rect x="43" y="1" width="7" height="7" fill="#898A8D"/>
+      <rect x="52" y="0" width="12" height="12" fill="#FF4713"/>
+      <rect x="67" y="4" width="7" height="7" fill="#FF4713"/>
+      <rect x="67" y="14" width="7" height="7" fill="#FF4713"/>
+      <rect x="52" y="14" width="10" height="10" fill="#FF4713"/>
+      <rect x="52" y="26" width="9" height="8" fill="#FF4713"/>
+      <text x="0" y="33" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="8.5" fill="white" letter-spacing="2.2">BRANDS</text>
+    </svg>
+    <div class="etb-logo-divider"></div>
+    <span class="etb-logo-subtitle">Manifiestos de Despacho</span>
+  </div>
+  <div class="topbar-nav">
+    <button class="nav-btn active" onclick="showScreen('setup')">+ Nuevo</button>
+    <button class="nav-btn" onclick="showScreen('scan')" id="navScan" style="display:none">📦 Escanear</button>
+    <button class="nav-btn" onclick="showScreen('history')">Historial</button>
+    <button class="nav-btn" id="navOrdenes" onclick="showScreen('ordenes')">📋 Órdenes</button>
+    <button class="nav-btn" onclick="showScreen('settings')">⚙</button>
+  </div>
+</div>
+
+<!-- ===== SETUP SCREEN ===== -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-header">
+    <h1>Nuevo Manifiesto</h1>
+    <p>Selecciona el chofer y configura el manifiesto</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#FF4713" stroke-width="2" stroke-linecap="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      Chofer
+    </div>
+    <div id="choferGrid" class="chofer-grid"></div>
+    <div class="form-group mt-4">
+      <label>O ingresa un nombre nuevo</label>
+      <input type="text" id="newChoferInput" placeholder="Nombre del chofer..." oninput="clearChoferSelection()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#FF4713" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 17H5a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3m-9 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M13 10h7a2 2 0 012 2v5a2 2 0 01-2 2h-1"/></svg>
+      Courier de este manifiesto
+    </div>
+    <div id="courierGrid" class="chofer-grid"></div>
+    <div class="form-group mt-4">
+      <label>O ingresa un courier nuevo</label>
+      <input type="text" id="newCourierInput" placeholder="Nombre del courier..." oninput="clearCourierSelection()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#FF4713" stroke-width="2"/><path stroke="#FF4713" stroke-width="2" stroke-linecap="round" d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Fecha y Manifiesto
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Fecha de despacho</label>
+        <input type="date" id="fechaDespacho" onchange="actualizarNumAuto()">
+      </div>
+      <div class="form-group">
+        <label>Número de manifiesto</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div id="numManifiestoPreview" style="flex:1;border:1.5px solid var(--gray-200);border-radius:8px;padding:10px 14px;font-size:15px;color:var(--gray-500);background:var(--gray-50)">—</div>
+        </div>
+        <div class="form-hint" id="numManifiestoHint">Se genera automáticamente al iniciar</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center">
+    <button class="btn btn-primary btn-lg" onclick="iniciarEscaneo()">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="white" stroke-width="2" stroke-linecap="round" d="M5 3h2M5 7H3M3 3h2M5 5h2M7 3v4M3 3v4M17 3h2M21 3h-2M21 3v4M17 7h2M17 5h2M5 17H3M3 21h2M3 17v4M5 21h2M7 21v-4M17 17h2M21 17v4M19 17v4M21 21h-2"/></svg>
+      Iniciar Escaneo
+    </button>
+  </div>
+</div>
+
+<!-- ===== SCAN SCREEN ===== -->
+<div id="screen-scan" class="screen">
+  <div class="scan-header">
+    <div class="scan-info">
+      <h2 id="scanTitle">Manifiesto #1</h2>
+      <p id="scanSubtitle">Chofer: — | Fecha: —</p>
+    </div>
+    <div class="flex gap-2 items-center">
+      <span class="sync-indicator" id="syncIndicator" onclick="processSyncQueue()" title="Estado de sincronización con Google Sheets">💾 Local</span>
+      <button class="btn btn-outline btn-sm" onclick="undoLast()">↩ Deshacer</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarCerrar()">✅ Cerrar Manifiesto</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-box total">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">Paquetes</div>
+    </div>
+    <div class="stat-box courier">
+      <div class="stat-num" id="statCourier">—</div>
+      <div class="stat-label">Courier</div>
+    </div>
+    <div class="stat-box dupes">
+      <div class="stat-num" id="statDupes">0</div>
+      <div class="stat-label">A verificar</div>
+    </div>
+  </div>
+
+  <!-- Scan input -->
+  <div class="scan-input-wrap">
+    <div class="scan-label">
+      <div class="pulse"></div>
+      Listo para escanear — apunta el lector al código QR o de barras
+    </div>
+    <input type="text" id="scanInput" placeholder="Escanea o escribe el código..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="scan-feedback" id="scanFeedback"></div>
+    <button class="btn btn-primary cam-scan-btn" onclick="abrirCamara()">📷 Escanear con cámara</button>
+  </div>
+
+  <!-- Table -->
+  <div class="card">
+    <div class="card-title flex justify-between items-center" style="margin-bottom:0;padding-bottom:0;border-bottom:none">
+      <span>Paquetes escaneados</span>
+      <button class="btn btn-outline btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
+    </div>
+    <div style="margin-top:16px" class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>N° Seguimiento</th>
+            <th>Transportista</th>
+            <th>Hora</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="scanTableBody">
+          <tr id="emptyRow"><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">No hay paquetes escaneados aún</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HISTORY SCREEN ===== -->
+<div id="screen-history" class="screen">
+  <div class="flex justify-between items-center" style="margin-bottom:20px">
+    <div>
+      <h2 style="font-size:22px;font-weight:700">Historial de Manifiestos</h2>
+      <p class="text-gray text-sm" style="margin-top:4px">Todos los despachos registrados</p>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-outline btn-sm" onclick="pullLedgerFromGSheets({alert:true})">☁️ Recargar de Sheets</button>
+      <button class="btn btn-outline btn-sm" onclick="exportarHistorialCSV()">⬇ Exportar todo</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarLimpiarHistorial()">🗑 Limpiar</button>
+    </div>
+  </div>
+  <div id="historyList"></div>
+</div>
+
+<!-- ===== SETTINGS SCREEN ===== -->
+<div id="screen-settings" class="screen">
+  <div style="margin-bottom:20px">
+    <h2 style="font-size:22px;font-weight:700">Configuración</h2>
+    <p class="text-gray text-sm" style="margin-top:4px">Ajusta choferes, transportistas y sincronización</p>
+  </div>
+
+  <div class="card">
+    <div class="settings-section">
+      <h3>☁️ Sincronización con Google Sheets (registro central) · v3.1</h3>
+      <div class="form-group">
+        <label>URL del Google Apps Script (webhook)</label>
+        <input type="text" id="gSheetUrl" placeholder="https://script.google.com/macros/s/.../exec">
+        <div class="form-hint">Despliega el Apps Script (botón más abajo) y pega aquí la URL <strong>/exec</strong>. Cada manifiesto cerrado se guarda en la planilla, y la app lee de ahí para detectar duplicados aunque cambies de equipo o se borre la caché.</div>
+      </div>
+      <div class="flex gap-2" style="flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="testGSheetConnection()">🧪 Probar conexión</button>
+        <button class="btn btn-outline btn-sm" onclick="pullLedgerFromGSheets({alert:true})">📥 Recargar registro desde Sheets</button>
+        <button class="btn btn-outline btn-sm" id="btnSyncQueue" onclick="processSyncQueue(true)">🔁 Sincronizar pendientes</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>👥 Choferes registrados</h3>
+      <div id="choferList" style="margin-bottom:12px"></div>
+      <div class="flex gap-2">
+        <input type="text" id="newChoferSetting" placeholder="Nuevo chofer..." style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="agregarChofer()">+ Agregar</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>🚚 Transportistas</h3>
+      <div id="carrierList" style="margin-bottom:12px"></div>
+      <div class="flex gap-2">
+        <input type="text" id="newCarrier" placeholder="Nuevo transportista..." style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="agregarTransportista()">+ Agregar</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="guardarSettings()">💾 Guardar configuración</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🗂 Cómo conectar Google Sheets (una sola vez)</div>
+    <p class="text-sm text-gray" style="margin-bottom:16px;line-height:1.7">
+      1. Crea o abre tu planilla de Google Sheets.<br>
+      2. Ve a <strong>Extensiones → Apps Script</strong>.<br>
+      3. Borra el código existente y pega el código de abajo.<br>
+      4. Guarda (Ctrl+S) → <strong>Implementar → Nueva implementación</strong>.<br>
+      5. Tipo: <strong>Aplicación web</strong> · Ejecutar como: <strong>Yo</strong> · Acceso: <strong>Cualquier persona</strong>.<br>
+      6. Copia la URL <strong>/exec</strong> y pégala en el campo de arriba.
+    </p>
+    <button class="btn btn-outline" onclick="copiarAppsScript()">📋 Copiar código Apps Script (v2)</button>
+    <div id="appsScriptInstructions" style="display:none;margin-top:16px;background:var(--gray-50);border-radius:8px;padding:16px;font-size:13px;color:var(--gray-700);line-height:1.7"></div>
+  </div>
+</div>
+
+<!-- ===== ORDENES DEL DÍA SCREEN ===== -->
+<div id="screen-ordenes" class="screen">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+    <div>
+      <h2 style="font-size:22px;font-weight:700">Órdenes del Día</h2>
+      <p class="text-gray text-sm" style="margin-top:4px">Carga el listado y verifica que se fue todo</p>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="resetOrdenes()" id="btnResetOrdenes" style="display:none">🗑 Limpiar</button>
+  </div>
+
+  <div class="card" id="cardCargaOrdenes">
+    <div class="card-title">📂 Cargar listado de órdenes</div>
+    <div style="margin-bottom:12px;display:flex;gap:10px;align-items:center">
+      <label style="font-size:13px;font-weight:500">Fecha a cruzar:</label>
+      <input type="date" id="ordenesFecha" style="font-size:13px;padding:5px 10px;border:1px solid var(--gray-200);border-radius:6px">
+    </div>
+    <div class="ordenes-drop-zone" id="ordenesDropZone" onclick="document.getElementById('ordenesFileInput').click()">
+      <div class="ordenes-drop-zone-icon">📊</div>
+      <div class="ordenes-drop-zone-text">Arrastra el Excel aquí o haz clic para seleccionar</div>
+      <div class="ordenes-drop-zone-sub">Archivos .xlsx, .xls, .csv o .txt — una columna con números de seguimiento</div>
+      <input type="file" id="ordenesFileInput" accept=".xlsx,.xls,.csv,.txt" style="display:none" onchange="handleOrdenesFile(event)">
+    </div>
+    <div style="text-align:center;color:var(--gray-400);font-size:12px;margin:8px 0">— o —</div>
+    <textarea id="ordenesPaste" placeholder="Pega aquí los números (uno por línea)..." style="width:100%;height:80px;font-size:12px;font-family:monospace;padding:10px;border:1px solid var(--gray-200);border-radius:8px;resize:vertical;box-sizing:border-box"></textarea>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <button class="btn btn-primary" onclick="cargarOrdenesDesdeTexto()">✅ Cargar listado</button>
+    </div>
+  </div>
+
+  <div id="ordenesResultado" style="display:none">
+    <div class="ordenes-stat-grid">
+      <div class="ordenes-stat total"><div class="ordenes-stat-num" id="oTotal">0</div><div class="ordenes-stat-label">Total Órdenes</div></div>
+      <div class="ordenes-stat ok"><div class="ordenes-stat-num" id="oOk">0</div><div class="ordenes-stat-label">✅ Despachadas</div></div>
+      <div class="ordenes-stat pending"><div class="ordenes-stat-num" id="oPend">0</div><div class="ordenes-stat-label">⏳ Pendientes</div></div>
+    </div>
+    <div class="ordenes-progress-bar"><div class="ordenes-progress-fill" id="oProgressFill" style="width:0%"></div></div>
+
+    <div class="card" style="padding:16px">
+      <div class="ordenes-filter-row">
+        <button class="ordenes-badge all active-filter" id="filterAll" onclick="filtrarOrdenes('all')">Todas</button>
+        <button class="ordenes-badge pend-badge" id="filterPend" onclick="filtrarOrdenes('pend')">⏳ Pendientes</button>
+        <button class="ordenes-badge ok-badge" id="filterOk" onclick="filtrarOrdenes('ok')">✅ Despachadas</button>
+        <div style="margin-left:auto">
+          <input type="text" id="ordenesSearch" placeholder="Buscar número..." style="font-size:12px;padding:5px 10px;border:1px solid var(--gray-200);border-radius:6px;width:160px" oninput="renderOrdenesList()">
+        </div>
+      </div>
+      <div class="ordenes-list" id="ordenesList"></div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-outline btn-sm" onclick="exportarPendientes()">⬇ Exportar pendientes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PRINT DOCUMENT ===== -->
+<div id="printDoc">
+  <div style="padding:32px 40px;max-width:800px;margin:0 auto">
+    <div class="print-header">
+      <div>
+        <svg width="110" height="42" viewBox="0 0 90 34" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:4px">
+          <rect x="0" y="0" width="16" height="4" fill="#1C1C1C"/>
+          <rect x="0" y="0" width="4" height="22" fill="#1C1C1C"/>
+          <rect x="0" y="9" width="12" height="4" fill="#1C1C1C"/>
+          <rect x="0" y="18" width="16" height="4" fill="#1C1C1C"/>
+          <rect x="20" y="0" width="18" height="4" fill="#898A8D"/>
+          <rect x="26" y="0" width="6" height="22" fill="#898A8D"/>
+          <rect x="43" y="1" width="7" height="7" fill="#898A8D"/>
+          <rect x="52" y="0" width="12" height="12" fill="#FF4713"/>
+          <rect x="67" y="4" width="7" height="7" fill="#FF4713"/>
+          <rect x="67" y="14" width="7" height="7" fill="#FF4713"/>
+          <rect x="52" y="14" width="10" height="10" fill="#FF4713"/>
+          <rect x="52" y="26" width="9" height="8" fill="#FF4713"/>
+          <text x="0" y="33" font-family="'Arial Black','Arial',sans-serif" font-weight="900" font-size="8.5" fill="#1C1C1C" letter-spacing="2.2">BRANDS</text>
+        </svg>
+        <div class="print-doc-title">Manifiesto de Despacho</div>
+      </div>
+      <div class="print-meta">
+        <span id="pMeta"></span>
+      </div>
+    </div>
+    <div class="print-section">
+      <h3>Resumen por Transportista</h3>
+      <div class="print-summary" id="pSummary"></div>
+    </div>
+    <div class="print-section">
+      <h3>Detalle de Paquetes</h3>
+      <table class="print-table">
+        <thead><tr><th>#</th><th>N° de Seguimiento</th><th>Transportista</th></tr></thead>
+        <tbody id="pTableBody"></tbody>
+      </table>
+    </div>
+    <div class="print-signatures">
+      <div class="signature-box">
+        <div id="pFirmaChofer" style="height:48px"></div>
+        <div class="signature-name" id="pChoferName"></div>
+        <div>Despachador</div>
+      </div>
+      <div class="signature-box">
+        <div style="height:48px"></div>
+        <div class="signature-name">_______________________</div>
+        <div>Receptor / Courier</div>
+      </div>
+    </div>
+    <div class="print-footer" id="pFooter"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL CERRAR MANIFIESTO ===== -->
+<div class="modal-overlay" id="modalCerrar">
+  <div class="modal">
+    <h2>✅ Cerrar Manifiesto</h2>
+    <div class="form-group">
+      <label>Despachador responsable</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px">
+        <button id="btnDespachoLucas" class="despacho-btn" onclick="seleccionarDespacho('Lucas Muñoz')">
+          <div style="font-size:28px;margin-bottom:6px">👤</div>
+          <div style="font-weight:700;font-size:15px">Lucas Muñoz</div>
+        </button>
+        <button id="btnDespachoFrancisco" class="despacho-btn" onclick="seleccionarDespacho('Francisco Pastén')">
+          <div style="font-size:28px;margin-bottom:6px">👤</div>
+          <div style="font-weight:700;font-size:15px">Francisco Pastén</div>
+        </button>
+      </div>
+    </div>
+    <div id="modalResumen" style="background:var(--gray-50);border-radius:8px;padding:16px;margin-bottom:8px;font-size:14px;line-height:1.8"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cerrarModal('modalCerrar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="generarDocumento()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="white" stroke-width="2" stroke-linecap="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm1-4h.01"/></svg>
+        Generar e Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL DUPLICADO WARNING ===== -->
+<div class="modal-overlay" id="modalDupeWarn">
+  <div class="dupe-modal">
+    <div class="dupe-banner">
+      <span class="dupe-banner-icon">⚠️</span>
+      <div class="dupe-banner-title">Revisar para evitar<br>duplicidad</div>
+      <div class="dupe-banner-sub">Este código ya fue despachado anteriormente</div>
+    </div>
+    <div class="dupe-body">
+      <div class="dupe-detail-box">
+        <div class="dupe-num" id="dupeNumero">—</div>
+        <div class="dupe-detail-row">
+          <span>📋</span>
+          <span>Visto en <strong id="dupeManifNum">—</strong></span>
+        </div>
+        <div class="dupe-detail-row">
+          <span>📅</span>
+          <span>Fecha: <strong id="dupeFecha">—</strong></span>
+        </div>
+        <div class="dupe-detail-row">
+          <span>👤</span>
+          <span>Chofer: <strong id="dupeChofer">—</strong></span>
+        </div>
+        <div class="dupe-detail-row">
+          <span>🚚</span>
+          <span>Courier: <strong id="dupeCourier">—</strong></span>
+        </div>
+      </div>
+      <div class="dupe-actions">
+        <button class="btn-dupe-ok" onclick="confirmarDupe()">
+          ✅ Sí corresponde enviar<br><span style="font-weight:400;font-size:11px">Reenvío justificado — se registra en el manifiesto</span>
+        </button>
+        <button class="btn-dupe-remove" onclick="eliminarDupe()">
+          🚫 No aplica reenvío<br><span style="font-weight:400;font-size:11px">Se revisó — no se vuelve a despachar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL VISTA HISTORIAL ===== -->
+<div class="modal-overlay" id="modalHistory">
+  <div class="modal" style="width:min(700px,95vw)">
+    <h2 id="modalHistoryTitle">Manifiesto</h2>
+    <div id="modalHistoryContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cerrarModal('modalHistory')">Cerrar</button>
+      <button class="btn btn-primary" id="btnReimprimir" onclick="reimprimirManifiesto()">🖨 Reimprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL RE-ESCANEO (mismo manifiesto) ===== -->
+<div class="modal-overlay" id="modalRescan" style="z-index:300;background:rgba(0,0,0,0.75)">
+  <div class="dupe-modal">
+    <div class="dupe-banner" style="background:var(--warning)">
+      <span class="dupe-banner-icon">🔁</span>
+      <div class="dupe-banner-title">¿Escaneado dos veces?</div>
+      <div class="dupe-banner-sub">Este código ya está en este mismo manifiesto</div>
+    </div>
+    <div class="dupe-body">
+      <div class="dupe-detail-box" style="border-color:var(--warning);background:#fffbeb">
+        <div class="dupe-num" id="rescanNumero">—</div>
+        <div class="dupe-detail-row"><span>ℹ️</span><span id="rescanInfo">—</span></div>
+      </div>
+      <div class="dupe-actions">
+        <button class="btn-dupe-ok" onclick="confirmarRescan()">
+          ➕ Es otra unidad<br><span style="font-weight:400;font-size:11px">La misma venta trae más de un bulto — sí va</span>
+        </button>
+        <button class="btn-dupe-remove" onclick="descartarRescan()">
+          🚫 Fue por error<br><span style="font-weight:400;font-size:11px">Lo escaneé dos veces — no contar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CÁMARA ===== -->
+<div class="modal-overlay" id="modalCamara">
+  <div class="modal" style="width:min(440px,96vw);padding:18px">
+    <h2 style="margin-bottom:12px">📷 Escanear con cámara</h2>
+    <div id="cameraReader"></div>
+    <div id="camStatus" style="font-size:12px;color:var(--gray-500);margin-top:8px;text-align:center"></div>
+    <div id="camFeedback" style="margin-top:10px;font-size:15px;text-align:center;min-height:24px;font-weight:700;font-family:monospace"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <span style="font-size:13px;color:var(--gray-600)">Escaneados: <strong id="camCount" style="color:var(--primary);font-size:16px">0</strong></span>
+      <button class="btn btn-danger btn-sm" onclick="cerrarCamara()">Cerrar cámara</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// STATE & STORAGE
+// ==========================================
+let state = {
+  screen: 'setup',
+  currentManifest: null,
+  viewingManifest: null,
+};
+
+function getSettings() {
+  const def = {
+    choferes: ['Fabian Fuentes', 'Jose Rodriguez', 'Sebastian Acuña'],
+    transportistas: ['Recibelo', 'Despachalo', 'StarKen', 'Chilexpress', 'Otro'],
+    gSheetUrl: '',
+  };
+  try { return Object.assign(def, JSON.parse(localStorage.getItem('etb_settings') || '{}')); }
+  catch { return def; }
+}
+function saveSettings(s) { localStorage.setItem('etb_settings', JSON.stringify(s)); }
+
+function getManifests() {
+  try { return JSON.parse(localStorage.getItem('etb_manifests') || '[]'); }
+  catch { return []; }
+}
+function saveManifests(m) { localStorage.setItem('etb_manifests', JSON.stringify(m)); }
+
+// ---- Cola de sincronización pendiente (a prueba de cortes de red) ----
+function getSyncQueue() { try { return JSON.parse(localStorage.getItem('etb_sync_queue') || '[]'); } catch { return []; } }
+function saveSyncQueue(q) { localStorage.setItem('etb_sync_queue', JSON.stringify(q)); }
+function enqueueSync(payload) { const q = getSyncQueue(); q.push(payload); saveSyncQueue(q); }
+
+// ---- Índice central de tracking (espejo local de la planilla) ----
+// numero -> { num, fecha(dd/mm/yyyy), fechaISO, chofer, courier }
+function getRemoteLedger() { try { return JSON.parse(localStorage.getItem('etb_remote_ledger') || '{}'); } catch { return {}; } }
+function saveRemoteLedger(l) { localStorage.setItem('etb_remote_ledger', JSON.stringify(l)); }
+
+// ==========================================
+// INDICADOR DE SINCRONIZACIÓN
+// ==========================================
+function setSyncStatus(stateName, text) {
+  const el = document.getElementById('syncIndicator');
+  if (!el) return;
+  el.className = 'sync-indicator ' + (stateName === 'idle' ? '' : stateName);
+  const icons = { synced: '☁️', syncing: '🔄', error: '⚠️', idle: '💾' };
+  el.textContent = (icons[stateName] || '💾') + ' ' + (text || '');
+}
+
+// ==========================================
+// BARCODE PARSER
+// ==========================================
+function parseBarcode(raw) {
+  raw = (raw || '').trim();
+  if (!raw) return null;
+
+  const isMeli = /id.*?Ñ.*?(\d{6,})/i.test(raw) || /\"id\".*?(\d{6,})/i.test(raw);
+  const isDespachalo = /traking.?number|despachalo/i.test(raw);
+
+  if (isDespachalo) {
+    const orderMatch = raw.match(/num.?order[^\d]*(\d+)/i);
+    const trackMatch = raw.match(/traking.?number[^\d]*(\d+)/i);
+    const num = orderMatch ? orderMatch[1] : (trackMatch ? trackMatch[1] : null);
+    if (num) return { numero: num, transportista: 'Despachalo' };
+  }
+  if (isMeli) {
+    const m = raw.match(/id[^\d]*(\d{6,})/i);
+    if (m) return { numero: m[1], transportista: 'Recibelo' };
+  }
+  if (/^\d{5,}$/.test(raw)) return { numero: raw, transportista: 'Desconocido' };
+  const nums = raw.match(/\d{8,}/g);
+  if (nums) return { numero: nums[0], transportista: 'Desconocido' };
+  return { numero: raw, transportista: 'Desconocido' };
+}
+
+// ==========================================
+// SCREEN NAVIGATION
+// ==========================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+
+  if (name === 'setup') renderSetup();
+  if (name === 'scan') { focusScanInput(); renderScanScreen(); }
+  if (name === 'history') { renderHistory(); if (getSettings().gSheetUrl) pullLedgerFromGSheets(); }
+  if (name === 'settings') renderSettingsScreen();
+  if (name === 'ordenes') renderOrdenesScreen();
+
+  state.screen = name;
+}
+
+// ==========================================
+// SETUP SCREEN
+// ==========================================
+let selectedChofer = null;
+let selectedCourier = null;
+const COURIER_ICONS = { 'Recibelo':'🟠','Despachalo':'🟢','Chilexpress':'🔵','StarKen':'⭐','Correos':'📬','Otro':'📦' };
+
+function renderSetup() {
+  const settings = getSettings();
+  const manifests = getManifests();
+
+  const grid = document.getElementById('choferGrid');
+  grid.innerHTML = '';
+  settings.choferes.forEach(name => {
+    const count = manifests.filter(m => m.chofer === name).length;
+    const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    const div = document.createElement('div');
+    div.className = 'chofer-card' + (selectedChofer === name ? ' selected' : '');
+    div.innerHTML = `<div class="chofer-avatar">${initials}</div><div class="chofer-name">${name}</div><div class="chofer-count">${count} manifiesto${count!==1?'s':''}</div>`;
+    div.onclick = () => { selectedChofer = name; document.getElementById('newChoferInput').value = ''; renderSetup(); };
+    grid.appendChild(div);
+  });
+
+  const cgrid = document.getElementById('courierGrid');
+  cgrid.innerHTML = '';
+  cgrid.className = 'courier-grid';
+  settings.transportistas.forEach(name => {
+    const icon = COURIER_ICONS[name] || '🚚';
+    const div = document.createElement('div');
+    div.className = 'courier-card' + (selectedCourier === name ? ' selected' : '');
+    div.innerHTML = `<div class="courier-icon">${icon}</div><div class="courier-name">${name}</div>`;
+    div.onclick = () => { selectedCourier = name; document.getElementById('newCourierInput').value = ''; renderSetup(); };
+    cgrid.appendChild(div);
+  });
+
+  const fd = document.getElementById('fechaDespacho');
+  if (!fd.value) fd.value = new Date().toISOString().split('T')[0];
+  actualizarNumAuto();
+}
+
+function getNextManifestNum(fecha) {
+  const manifests = getManifests();
+  const todayManifests = manifests.filter(m => m.fecha === fecha);
+  return todayManifests.length + 1;
+}
+
+function actualizarNumAuto() {
+  const fecha = document.getElementById('fechaDespacho').value || new Date().toISOString().split('T')[0];
+  const num = getNextManifestNum(fecha);
+  const preview = document.getElementById('numManifiestoPreview');
+  const hint = document.getElementById('numManifiestoHint');
+  if (preview) { preview.textContent = `N° ${num}`; preview.style.color = 'var(--gray-800)'; preview.style.fontWeight = '600'; }
+  if (hint) { const [y, mo, d] = fecha.split('-'); hint.textContent = `Manifiesto N° ${num} del ${d}/${mo}/${y}`; }
+}
+
+function clearChoferSelection() { selectedChofer = null; document.querySelectorAll('.chofer-card').forEach(c => c.classList.remove('selected')); }
+function clearCourierSelection() { selectedCourier = null; document.querySelectorAll('.courier-card').forEach(c => c.classList.remove('selected')); }
+function getChoferName() { const custom = document.getElementById('newChoferInput').value.trim(); return custom || selectedChofer; }
+function getCourierName() { const custom = document.getElementById('newCourierInput').value.trim(); return custom || selectedCourier; }
+
+function iniciarEscaneo() {
+  const chofer = getChoferName();
+  if (!chofer) { alert('Por favor selecciona o ingresa el nombre del chofer.'); return; }
+  const courier = getCourierName();
+  if (!courier) { alert('Por favor selecciona el courier de este manifiesto.'); return; }
+  const fecha = document.getElementById('fechaDespacho').value || new Date().toISOString().split('T')[0];
+  const num = getNextManifestNum(fecha);
+
+  state.currentManifest = {
+    id: Date.now().toString(), chofer, courier, fecha, num,
+    paquetes: [], dupesBlocked: 0, startTime: new Date().toISOString(),
+  };
+
+  const s = getSettings();
+  if (chofer && !s.choferes.includes(chofer)) { s.choferes.push(chofer); saveSettings(s); }
+  if (courier && !s.transportistas.includes(courier)) { s.transportistas.push(courier); saveSettings(s); }
+
+  document.getElementById('navScan').style.display = 'inline-flex';
+  updateScanUI();
+  showScreen('scan');
+}
+
+// ==========================================
+// SCAN SCREEN
+// ==========================================
+function updateScanUI() {
+  if (!state.currentManifest) return;
+  const m = state.currentManifest;
+  const [y, mo, d] = m.fecha.split('-');
+  document.getElementById('scanTitle').textContent = `Manifiesto N° ${m.num} — ${m.courier}`;
+  document.getElementById('scanSubtitle').textContent = `Chofer: ${m.chofer} | ${d}/${mo}/${y}`;
+  updateStats();
+  renderScanTable();
+}
+function renderScanScreen() { if (!state.currentManifest) return; updateScanUI(); }
+function focusScanInput() {
+  // En pantallas táctiles (celular) no auto-enfocamos para no abrir el teclado;
+  // ahí el flujo principal es la cámara. En PC sí enfocamos para el lector físico.
+  if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+  setTimeout(() => { const inp = document.getElementById('scanInput'); if (inp) inp.focus(); }, 100);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (state.screen === 'scan' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+    const inp = document.getElementById('scanInput');
+    if (inp && document.activeElement !== inp && e.key.length === 1) inp.focus();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('scanInput');
+  if (inp) {
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); processScan(inp.value); inp.value = ''; }
+    });
+    let scanTimer;
+    inp.addEventListener('input', () => {
+      clearTimeout(scanTimer);
+      scanTimer = setTimeout(() => {
+        const val = inp.value.trim();
+        if (val.length > 10 && (val.includes('Ñ') || val.includes('[') || /^\d{8,}$/.test(val))) {
+          processScan(val); inp.value = '';
+        }
+      }, 200);
+    });
+  }
+
+  renderSetup();
+  renderHistory();
+  renderSettingsScreen();
+
+  const settings = getSettings();
+  const urlInput = document.getElementById('gSheetUrl');
+  if (urlInput) urlInput.value = settings.gSheetUrl || '';
+
+  // Conexión con Google Sheets: cargar registro central + reintentar pendientes
+  if (settings.gSheetUrl) {
+    setSyncStatus('syncing', 'Conectando a Sheets...');
+    pullLedgerFromGSheets().then(() => processSyncQueue());
+  } else {
+    setSyncStatus('idle', 'Solo local');
+  }
+});
+
+function showFeedback(type, msg) {
+  const fb = document.getElementById('scanFeedback');
+  fb.className = 'scan-feedback ' + type;
+  const icons = { ok: '✅', error: '❌', warn: '⚠️' };
+  fb.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+  clearTimeout(fb._timer);
+  fb._timer = setTimeout(() => fb.className = 'scan-feedback', 3000);
+}
+
+function processScan(raw) {
+  if (!raw || !raw.trim()) return;
+  if (!state.currentManifest) return;
+
+  const parsed = parseBarcode(raw);
+  if (!parsed) {
+    playError(); buzz([120, 60, 120]);
+    showFeedback('error', 'No se pudo leer el código. Intenta nuevamente.');
+    camFeedbackShow('No se pudo leer', false);
+    return;
+  }
+
+  parsed.transportista = state.currentManifest.courier;
+
+  // ¿Ya está en ESTE mismo manifiesto? → posible re-escaneo por error
+  const repeticionesEnEste = state.currentManifest.paquetes.filter(p => p.numero === parsed.numero);
+
+  // ¿Está en OTRO manifiesto? (historial local + registro central de Sheets)
+  let foundEnManifiestoPrevio = null;
+  const currentId = state.currentManifest.id;
+  for (const m of getManifests()) {
+    if (m.id === currentId) continue;
+    if ((m.paquetes || []).some(p => p.numero === parsed.numero)) {
+      const [y, mo, d] = m.fecha.split('-');
+      foundEnManifiestoPrevio = { num: m.num, fecha: `${d}/${mo}/${y}`, chofer: m.chofer, courier: m.courier };
+      break;
+    }
+  }
+  if (!foundEnManifiestoPrevio) {
+    const r = getRemoteLedger()[parsed.numero];
+    if (r) foundEnManifiestoPrevio = { num: r.num, fecha: r.fecha, chofer: r.chofer, courier: r.courier };
+  }
+
+  const paquete = {
+    ...parsed,
+    hora: new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }),
+    timestamp: Date.now(),
+    warnDupe: !!foundEnManifiestoPrevio,
+  };
+  state.currentManifest.paquetes.unshift(paquete);
+  updateStats();
+  renderScanTable();
+
+  // CASO 1 — re-escaneo dentro del mismo manifiesto (alarma + aviso para confirmar)
+  if (repeticionesEnEste.length > 0) {
+    playError(); buzz([60, 50, 60]);
+    cameraScanPaused = true;
+    const prev = repeticionesEnEste[repeticionesEnEste.length - 1];
+    document.getElementById('rescanNumero').textContent = parsed.numero;
+    document.getElementById('rescanInfo').textContent =
+      `Ya está en este manifiesto (escaneado a las ${prev.hora || '—'}). Si es otra unidad de la misma venta, agrégalo; si fue por error, quítalo.`;
+    document.getElementById('modalRescan').dataset.timestamp = paquete.timestamp;
+    document.getElementById('modalRescan').classList.add('open');
+    camFeedbackShow(parsed.numero + ' — repetido', false);
+    return;
+  }
+
+  // CASO 2 — aparece en otro manifiesto (alarma + aviso de duplicidad)
+  if (foundEnManifiestoPrevio) {
+    playError(); buzz([200]);
+    cameraScanPaused = true;
+    const { num, fecha, chofer, courier } = foundEnManifiestoPrevio;
+    document.getElementById('dupeNumero').textContent = parsed.numero;
+    document.getElementById('dupeManifNum').textContent = `Manifiesto N° ${num}`;
+    document.getElementById('dupeFecha').textContent = fecha;
+    document.getElementById('dupeChofer').textContent = chofer || '—';
+    document.getElementById('dupeCourier').textContent = courier || '—';
+    document.getElementById('modalDupeWarn').dataset.timestamp = paquete.timestamp;
+    document.getElementById('modalDupeWarn').classList.add('open');
+    camFeedbackShow(parsed.numero + ' — revisar', false);
+    return;
+  }
+
+  // CASO 3 — escaneo limpio (sonido de éxito)
+  playSuccess(); buzz(60);
+  showFeedback('ok', `✓ ${parsed.numero}`);
+  camFeedbackShow(parsed.numero, true);
+  focusScanInput();
+}
+
+function updateStats() {
+  if (!state.currentManifest) return;
+  const m = state.currentManifest;
+  document.getElementById('statTotal').textContent = m.paquetes.length;
+  document.getElementById('statCourier').textContent = m.courier || '—';
+  const warnings = m.paquetes.filter(p => p.warnDupe).length;
+  document.getElementById('statDupes').textContent = warnings;
+  const dupesBox = document.querySelector('.stat-box.dupes');
+  if (dupesBox) dupesBox.style.borderTopColor = warnings > 0 ? 'var(--danger)' : 'var(--warning)';
+  const dupesNum = document.getElementById('statDupes');
+  if (dupesNum) dupesNum.style.color = warnings > 0 ? 'var(--danger)' : 'var(--warning)';
+}
+
+function renderScanTable() {
+  const tbody = document.getElementById('scanTableBody');
+  const ps = state.currentManifest ? state.currentManifest.paquetes : [];
+  if (ps.length === 0) {
+    tbody.innerHTML = '<tr id="emptyRow"><td colspan="5" style="text-align:center;color:var(--gray-400);padding:32px">No hay paquetes escaneados aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = ps.map((p, i) => {
+    const rowClass = i === 0 ? 'row-new' : '';
+    const warnCell = p.reenvio
+      ? `<span title="Reenvío justificado" style="background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;margin-right:4px">REENVÍO</span>`
+      : p.warnDupe
+        ? `<span title="⚠ Verificar duplicidad" style="color:var(--warning);font-weight:700;font-size:15px;cursor:help;margin-right:2px">⚠</span>`
+        : '';
+    const rowStyle = p.reenvio ? 'background:#eff6ff' : p.warnDupe ? 'background:var(--warning-light)' : '';
+    return `<tr class="${rowClass}" style="${rowStyle}">
+      <td style="color:var(--gray-400);font-size:12px">${ps.length - i}</td>
+      <td class="mono">${warnCell}${p.numero}</td>
+      <td><span class="badge badge-sts">${p.transportista}</span></td>
+      <td class="text-sm text-gray">${p.hora}</td>
+      <td><button class="btn-delete-row" onclick="eliminarPaquete(${p.timestamp})" title="Eliminar">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function confirmarDupe() {
+  const ts = parseInt(document.getElementById('modalDupeWarn').dataset.timestamp);
+  if (state.currentManifest && ts) {
+    const paquete = state.currentManifest.paquetes.find(p => p.timestamp === ts);
+    if (paquete) paquete.reenvio = true;
+    renderScanTable();
+  }
+  document.getElementById('modalDupeWarn').classList.remove('open');
+  cameraScanPaused = false;
+  showFeedback('ok', '✅ Registrado como reenvío justificado');
+  focusScanInput();
+}
+function eliminarDupe() {
+  const ts = parseInt(document.getElementById('modalDupeWarn').dataset.timestamp);
+  if (state.currentManifest && ts) {
+    state.currentManifest.paquetes = state.currentManifest.paquetes.filter(p => p.timestamp !== ts);
+    updateStats(); renderScanTable();
+    const cc = document.getElementById('camCount'); if (cc) cc.textContent = state.currentManifest.paquetes.length;
+  }
+  document.getElementById('modalDupeWarn').classList.remove('open');
+  cameraScanPaused = false;
+  showFeedback('ok', '🚫 Eliminado — no aplica reenvío');
+  focusScanInput();
+}
+function eliminarPaquete(timestamp) {
+  if (!state.currentManifest) return;
+  state.currentManifest.paquetes = state.currentManifest.paquetes.filter(p => p.timestamp !== timestamp);
+  updateStats(); renderScanTable(); focusScanInput();
+}
+function undoLast() {
+  if (!state.currentManifest || !state.currentManifest.paquetes.length) return;
+  state.currentManifest.paquetes.shift();
+  updateStats(); renderScanTable(); focusScanInput();
+}
+function exportarCSV() {
+  if (!state.currentManifest) return;
+  const ps = state.currentManifest.paquetes;
+  const m = state.currentManifest;
+  const rows = [['N°', 'N° Seguimiento', 'Transportista', 'Chofer', 'Fecha', 'Hora']];
+  [...ps].reverse().forEach((p, i) => { rows.push([i + 1, p.numero, p.transportista, m.chofer, m.fecha, p.hora]); });
+  downloadCSV(rows, `manifiesto_${m.num}_${m.fecha}.csv`);
+}
+
+// ==========================================
+// ESCÁNER POR CÁMARA + SONIDOS (celular y PC)
+// ==========================================
+let html5Qr = null;
+let cameraScanPaused = false;
+let lastCamCode = '';
+let lastCamTime = 0;
+let _audioCtx = null;
+
+function _audio() {
+  if (!_audioCtx) { try { _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
+  if (_audioCtx.state === 'suspended') { try { _audioCtx.resume(); } catch (e) {} }
+  return _audioCtx;
+}
+// Reproduce un tono. Encadenar varios crea melodías/alarmas.
+function tone(freq, start, dur, type, vol) {
+  const ctx = _audio(); if (!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.connect(g); g.connect(ctx.destination);
+  o.type = type || 'sine'; o.frequency.value = freq;
+  const t0 = ctx.currentTime + (start || 0);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol || 0.22, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + (dur || 0.12));
+  o.start(t0); o.stop(t0 + (dur || 0.12) + 0.03);
+}
+// Éxito: dos notas ascendentes, agradable
+function playSuccess() { tone(880, 0, 0.10, 'sine', 0.22); tone(1320, 0.10, 0.13, 'sine', 0.22); }
+// Error / alarma: dos zumbidos graves tipo bocina
+function playError() { tone(196, 0, 0.20, 'square', 0.26); tone(155, 0.22, 0.26, 'square', 0.26); }
+
+function buzz(pattern) { if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} } }
+
+// Refleja el resultado del escaneo en el visor de la cámara (si está abierta)
+function camFeedbackShow(text, ok) {
+  const fb = document.getElementById('camFeedback');
+  if (fb) { fb.style.color = ok ? '#0e9f6e' : '#c27803'; fb.textContent = (ok ? '✓ ' : '⚠ ') + text; }
+  const cc = document.getElementById('camCount');
+  if (cc && state.currentManifest) cc.textContent = state.currentManifest.paquetes.length;
+}
+
+function abrirCamara() {
+  if (!state.currentManifest) { alert('Inicia un manifiesto primero (pestaña "+ Nuevo").'); return; }
+  _audio(); // desbloquea el sonido con el toque del usuario
+  cameraScanPaused = false; lastCamCode = ''; lastCamTime = 0;
+  document.getElementById('camFeedback').textContent = '';
+  document.getElementById('camStatus').textContent = 'Abriendo cámara...';
+  document.getElementById('camCount').textContent = state.currentManifest.paquetes.length;
+  document.getElementById('modalCamara').classList.add('open');
+
+  if (typeof Html5Qrcode === 'undefined') {
+    document.getElementById('camStatus').textContent = 'No se pudo cargar el lector de cámara (revisa tu conexión).';
+    return;
+  }
+  html5Qr = new Html5Qrcode('cameraReader', { verbose: false });
+  const config = { fps: 10, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 };
+  html5Qr.start({ facingMode: 'environment' }, config, onCameraScan, () => {})
+    .then(() => { document.getElementById('camStatus').textContent = 'Apunta al código QR o de barras del paquete'; })
+    .catch(err => {
+      const msg = String(err || '');
+      if (/NotAllowed|Permission/i.test(msg)) {
+        document.getElementById('camStatus').textContent = '⚠ Permiso de cámara denegado. Acéptalo en el navegador y vuelve a intentar.';
+      } else {
+        document.getElementById('camStatus').textContent = '⚠ La cámara no está disponible aquí. Funciona al abrir la app desde tu sitio (HTTPS) en el celular.';
+      }
+      html5Qr = null;
+    });
+}
+
+function onCameraScan(decodedText) {
+  if (cameraScanPaused) return;
+  const now = Date.now();
+  // Anti-rebote: ignora el MISMO código repetido en menos de 2.5s (evita que el mismo QR se cuente varias veces seguidas)
+  if (decodedText === lastCamCode && now - lastCamTime < 2500) return;
+  lastCamCode = decodedText; lastCamTime = now;
+  processScan(decodedText); // el sonido, la vibración, el feedback y la pausa se manejan en processScan
+}
+
+function cerrarCamara() {
+  const m = document.getElementById('modalCamara');
+  if (html5Qr) {
+    html5Qr.stop().then(() => { try { html5Qr.clear(); } catch (e) {} html5Qr = null; }).catch(() => { html5Qr = null; });
+  }
+  m.classList.remove('open');
+  if (state.screen === 'scan') focusScanInput();
+}
+
+// ── Aviso de re-escaneo dentro del mismo manifiesto ──
+function confirmarRescan() {
+  // Es una unidad adicional legítima de la misma venta — se mantiene
+  document.getElementById('modalRescan').classList.remove('open');
+  cameraScanPaused = false;
+  playSuccess();
+  showFeedback('ok', '✅ Unidad adicional registrada');
+  camFeedbackShow('unidad adicional', true);
+  focusScanInput();
+}
+function descartarRescan() {
+  const ts = parseInt(document.getElementById('modalRescan').dataset.timestamp);
+  if (state.currentManifest && ts) {
+    state.currentManifest.paquetes = state.currentManifest.paquetes.filter(p => p.timestamp !== ts);
+    updateStats(); renderScanTable();
+  }
+  document.getElementById('modalRescan').classList.remove('open');
+  cameraScanPaused = false;
+  showFeedback('ok', '🚫 Escaneo repetido descartado');
+  camFeedbackShow('repetido descartado', true);
+  focusScanInput();
+}
+
+// ==========================================
+// CERRAR MANIFIESTO
+// ==========================================
+let selectedDespachador = null;
+function seleccionarDespacho(nombre) {
+  selectedDespachador = nombre;
+  document.querySelectorAll('.despacho-btn').forEach(b => b.classList.remove('selected'));
+  if (nombre === 'Lucas Muñoz') document.getElementById('btnDespachoLucas').classList.add('selected');
+  if (nombre === 'Francisco Pastén') document.getElementById('btnDespachoFrancisco').classList.add('selected');
+}
+function confirmarCerrar() {
+  if (!state.currentManifest || !state.currentManifest.paquetes.length) { alert('No hay paquetes escaneados en este manifiesto.'); return; }
+  selectedDespachador = null;
+  document.querySelectorAll('.despacho-btn').forEach(b => b.classList.remove('selected'));
+  const m = state.currentManifest;
+  const total = m.paquetes.length;
+  const [y, mo, d] = m.fecha.split('-');
+  document.getElementById('modalResumen').innerHTML = `
+    <strong>Manifiesto N° ${m.num}</strong> — ${d}/${mo}/${y}<br>
+    Chofer: <strong>${m.chofer}</strong> &nbsp;|&nbsp; Courier: <strong>${m.courier}</strong><br><br>
+    📦 Total paquetes: <strong>${total}</strong>`;
+  document.getElementById('modalCerrar').classList.add('open');
+}
+
+function generarDocumento() {
+  if (!selectedDespachador) { alert('Por favor selecciona el despachador responsable.'); return; }
+  const nombre = selectedDespachador;
+  cerrarModal('modalCerrar');
+
+  const m = state.currentManifest;
+  const ps = [...m.paquetes].reverse();
+  const [y, mo, d] = m.fecha.split('-');
+  const fechaStr = `${d}/${mo}/${y}`;
+  const now = new Date();
+  const semana = getWeekNumber(new Date(m.fecha + 'T12:00:00'));
+  const mesAño = getMesAño(m.fecha);
+  const total = ps.length;
+
+  document.getElementById('pMeta').innerHTML = `
+    <strong>Manifiesto N° ${m.num}</strong><br>
+    Fecha: ${fechaStr} &nbsp;|&nbsp; Semana ${semana}<br>
+    Courier: <strong>${m.courier}</strong><br>
+    Generado: ${now.toLocaleString('es-CL')}`;
+  document.getElementById('pSummary').innerHTML = `
+    <div class="print-summary-box"><div class="ps-num">${total}</div><div class="ps-label">Total Paquetes</div></div>
+    <div class="print-summary-box"><div class="ps-num" style="font-size:18px;padding-top:6px">${m.courier}</div><div class="ps-label">Courier</div></div>
+    <div class="print-summary-box"><div class="ps-num" style="font-size:18px;padding-top:6px">${mesAño}</div><div class="ps-label">Período</div></div>`;
+  document.getElementById('pTableBody').innerHTML = ps.map((p, i) => `
+    <tr><td>${i + 1}</td>
+    <td class="mono">${p.numero}${p.reenvio ? ' <span style="font-size:10px;font-weight:700;color:#FF4713;background:#fff0ea;padding:1px 4px;border-radius:3px;vertical-align:middle">REENVÍO</span>' : ''}</td>
+    <td>${p.transportista || m.courier}</td></tr>`).join('');
+  document.getElementById('pChoferName').textContent = nombre;
+  document.getElementById('pFooter').textContent = `ET Brands — Manifiesto N° ${m.num} | ${fechaStr} | Total: ${total} paquetes | Generado: ${now.toLocaleString('es-CL')}`;
+
+  // Guardar en historial local
+  const manifests = getManifests();
+  const saved = { ...m, paquetes: [...m.paquetes], despachador: nombre, cerradoEn: now.toISOString(), semana, mesAño, synced: false };
+  const existingIdx = manifests.findIndex(mx => mx.id === m.id);
+  if (existingIdx >= 0) manifests[existingIdx] = saved; else manifests.unshift(saved);
+  saveManifests(manifests);
+
+  // Actualizar índice central local inmediatamente (para dedupe en la misma sesión)
+  mergeRowsIntoLedger(buildRows(saved), saved);
+
+  state.currentManifest = null;
+
+  // Sincronizar con Google Sheets (con reintento si falla)
+  syncToGSheets(saved);
+
+  document.getElementById('printDoc').style.display = 'block';
+  setTimeout(() => {
+    window.print();
+    document.getElementById('printDoc').style.display = 'none';
+    document.getElementById('navScan').style.display = 'none';
+    showScreen('history');
+  }, 400);
+}
+
+// ==========================================
+// SYNC GOOGLE SHEETS (lectura + escritura + cola)
+// ==========================================
+function buildRows(manifest) {
+  return (manifest.paquetes || []).map(p => ({
+    id: manifest.id,
+    rowId: manifest.id + '-' + p.timestamp,
+    manifiestoNum: manifest.num,
+    fecha: manifest.fecha,
+    tracking: p.numero,
+    transportista: p.transportista || manifest.courier,
+    chofer: manifest.chofer,
+    despachador: manifest.despachador || '',
+    hora: p.hora || '',
+    reenvio: p.reenvio ? 'Sí' : 'No',
+    mesAño: manifest.mesAño,
+    semana: manifest.semana
+  }));
+}
+
+function mergeRowsIntoLedger(rows, manifest) {
+  const led = getRemoteLedger();
+  const [y, mo, d] = manifest.fecha.split('-');
+  const disp = `${d}/${mo}/${y}`;
+  rows.forEach(r => {
+    if (!led[String(r.tracking)]) {
+      led[String(r.tracking)] = { num: manifest.num, fecha: disp, fechaISO: manifest.fecha, chofer: manifest.chofer, courier: r.transportista };
+    }
+  });
+  saveRemoteLedger(led);
+}
+
+function markManifestSynced(id, ok) {
+  const ms = getManifests();
+  const i = ms.findIndex(m => m.id === id);
+  if (i >= 0) { ms[i].synced = ok; saveManifests(ms); }
+}
+
+async function syncToGSheets(manifest) {
+  const url = getSettings().gSheetUrl;
+  if (!url) { setSyncStatus('idle', 'Solo local'); return false; }
+  const payload = { action: 'append', manifiestoId: manifest.id, rows: buildRows(manifest) };
+  setSyncStatus('syncing', 'Guardando en Sheets...');
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data && data.ok) {
+      markManifestSynced(manifest.id, true);
+      setSyncStatus('synced', 'Guardado en Sheets');
+      renderHistory();
+      return true;
+    }
+    throw new Error((data && data.error) || 'respuesta inválida');
+  } catch (err) {
+    // Si falla, encolar para reintento (la planilla deduplica, así que reintentar es seguro)
+    enqueueSync(payload);
+    markManifestSynced(manifest.id, false);
+    const pend = getSyncQueue().length;
+    setSyncStatus('error', `Sin conexión — ${pend} pendiente${pend !== 1 ? 's' : ''}`);
+    renderHistory();
+    console.warn('GSheets sync error:', err);
+    return false;
+  }
+}
+
+async function processSyncQueue(showAlert) {
+  const url = getSettings().gSheetUrl;
+  if (!url) { if (showAlert) alert('Primero configura la URL de Google Sheets'); return; }
+  let q = getSyncQueue();
+  if (!q.length) {
+    setSyncStatus('synced', 'Todo sincronizado');
+    if (showAlert) alert('✅ No hay manifiestos pendientes — todo está en la planilla');
+    return;
+  }
+  setSyncStatus('syncing', `Reintentando ${q.length}...`);
+  const remaining = [];
+  for (const payload of q) {
+    try {
+      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!(data && data.ok)) remaining.push(payload);
+    } catch (e) { remaining.push(payload); }
+  }
+  saveSyncQueue(remaining);
+  // marcar manifiestos que ya salieron de la cola como sincronizados
+  const stillQueuedIds = new Set(remaining.map(p => p.manifiestoId));
+  getManifests().forEach(m => { if (m.synced === false && !stillQueuedIds.has(m.id)) markManifestSynced(m.id, true); });
+  if (remaining.length) {
+    setSyncStatus('error', `${remaining.length} pendiente${remaining.length !== 1 ? 's' : ''}`);
+    if (showAlert) alert(`⚠ Quedaron ${remaining.length} sin sincronizar. Revisa la conexión o la URL.`);
+  } else {
+    setSyncStatus('synced', 'Todo sincronizado');
+    if (showAlert) alert('✅ Pendientes sincronizados correctamente');
+  }
+  renderHistory();
+  renderSettingsScreen();
+}
+
+async function pullLedgerFromGSheets(opts) {
+  opts = opts || {};
+  const url = getSettings().gSheetUrl;
+  if (!url) { if (opts.alert) alert('Configura primero la URL de Google Sheets'); return false; }
+  setSyncStatus('syncing', 'Cargando registro...');
+  try {
+    const res = await fetch(url + '?action=ledger');
+    const data = await res.json();
+    if (!(data && data.ok && Array.isArray(data.ledger))) throw new Error('respuesta inválida');
+
+    const isoF = (raw) => {
+      if (!raw) return '';
+      const s = String(raw);
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.split('T')[0];
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? s : d.toISOString().split('T')[0];
+    };
+    const horaF = (raw) => {
+      if (!raw) return '';
+      const s = String(raw);
+      if (/^\d{1,2}:\d{2}/.test(s)) return s;
+      const m = s.match(/T(\d{2}:\d{2})/);
+      return m ? m[1] : '';
+    };
+    const esReenvio = (v) => { const s = String(v).toLowerCase().trim(); return s === 'sí' || s === 'si' || s === 'true'; };
+
+    // Reconstruir manifiestos del equipo agrupando las filas por ID de manifiesto
+    const byId = {};
+    const led = getRemoteLedger();
+    data.ledger.forEach(r => {
+      const tracking = String(r.tracking || '').trim();
+      if (!tracking) return;
+      const fechaISO = isoF(r.fecha);
+      const id = (r.id && String(r.id).trim()) ? String(r.id) : (fechaISO + '|' + r.manifiestoNum + '|' + (r.chofer || '') + '|' + (r.transportista || ''));
+      if (!byId[id]) {
+        byId[id] = {
+          id: id, num: r.manifiestoNum, fecha: fechaISO,
+          chofer: r.chofer || '', courier: r.transportista || '',
+          despachador: r.despachador || '', semana: r.semana || '', mesAño: r.mesAño || '',
+          paquetes: [], synced: true
+        };
+      }
+      const ts = (r.rowId && String(r.rowId).indexOf('-') >= 0) ? Number(String(r.rowId).split('-').pop()) : Date.now();
+      byId[id].paquetes.push({
+        numero: tracking,
+        transportista: r.transportista || byId[id].courier,
+        hora: horaF(r.hora),
+        reenvio: esReenvio(r.reenvio),
+        timestamp: ts
+      });
+      if (!led[tracking]) {
+        const [y, mo, d] = (fechaISO || '--').split('-');
+        led[tracking] = { num: r.manifiestoNum, fecha: (fechaISO ? `${d}/${mo}/${y}` : '—'), fechaISO: fechaISO, chofer: r.chofer || '', courier: r.transportista || '' };
+      }
+    });
+    saveRemoteLedger(led);
+
+    // Fusionar: manifiestos del equipo (Sheets) + locales que aún no se han sincronizado
+    const local = getManifests();
+    const remoteIds = new Set(Object.keys(byId));
+    const localPendientes = local.filter(m => !remoteIds.has(String(m.id)));
+    const merged = [...Object.values(byId), ...localPendientes];
+    merged.sort((a, b) => (String(b.fecha || '')).localeCompare(String(a.fecha || '')) || (Number(b.id) - Number(a.id)));
+    saveManifests(merged);
+
+    setSyncStatus('synced', Object.keys(byId).length + ' manifiestos en el equipo');
+    if (state.screen === 'history') renderHistory();
+    if (state.screen === 'setup') renderSetup();
+    if (opts.alert) alert('✅ Registro del equipo actualizado: ' + Object.keys(byId).length + ' manifiestos visibles para todos');
+    return true;
+  } catch (err) {
+    setSyncStatus('error', 'No se pudo leer Sheets');
+    if (opts.alert) alert('⚠ No se pudo leer la planilla. Verifica la URL /exec y que el acceso sea "Cualquier persona".');
+    console.warn('GSheets pull error:', err);
+    return false;
+  }
+}
+
+function testGSheetConnection() {
+  const url = getSettings().gSheetUrl;
+  if (!url) { alert('Primero ingresa y guarda la URL del Apps Script'); return; }
+  fetch(url + '?test=1')
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) alert('✅ Conexión exitosa con Google Sheets\n' + (data.status || ''));
+      else alert('Error: ' + (data.error || 'desconocido'));
+    })
+    .catch(() => alert('⚠ No se pudo conectar. Verifica la URL /exec y el despliegue.'));
+}
+
+// ==========================================
+// HISTORIAL
+// ==========================================
+function renderHistory() {
+  const manifests = getManifests();
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  if (!manifests.length) {
+    el.innerHTML = '<div style="text-align:center;color:#888;padding:40px 20px;font-size:15px">No hay manifiestos guardados aún.<br><span style="font-size:13px">Los manifiestos aparecen aquí al cerrarlos.</span></div>';
+    return;
+  }
+  el.innerHTML = manifests.map((m, i) => {
+    const total = (m.paquetes || []).length;
+    const dupes = (m.paquetes || []).filter(p => p.warnDupe).length;
+    const reenvios = (m.paquetes || []).filter(p => p.reenvio).length;
+    const [y, mo, d] = m.fecha.split('-');
+    const fechaStr = `${d}/${mo}/${y}`;
+    const syncBadge = m.synced === true
+      ? '<span style="font-size:11px;background:var(--success-light);color:#065f46;padding:2px 8px;border-radius:20px;font-weight:600">☁️ En Sheets</span>'
+      : (getSettings().gSheetUrl ? '<span style="font-size:11px;background:var(--danger-light);color:#9b1c1c;padding:2px 8px;border-radius:20px;font-weight:600">⏳ Sin sincronizar</span>' : '');
+    return `
+      <div class="history-card" style="background:white;border:1px solid var(--gray-200);border-radius:12px;padding:16px 20px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:17px;font-weight:700;color:var(--gray-900)">Manifiesto N° ${m.num}</div>
+            <div style="font-size:13px;color:var(--gray-500);margin-top:2px">${fechaStr} &nbsp;·&nbsp; ${m.chofer} &nbsp;·&nbsp; ${m.courier || '—'}</div>
+            ${m.despachador ? `<div style="font-size:12px;color:var(--gray-400);margin-top:1px">Despachado por: ${m.despachador}</div>` : ''}
+          </div>
+          <div style="font-size:28px;font-weight:800;color:var(--primary);min-width:48px;text-align:right">${total}<span style="font-size:12px;font-weight:400;color:var(--gray-400)"> pkgs</span></div>
+        </div>
+        <div style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">
+          ${syncBadge}
+          ${dupes ? `<span style="font-size:11px;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:20px;font-weight:600">⚠ ${dupes} alerta${dupes > 1 ? 's' : ''}</span>` : ''}
+          ${reenvios ? `<span style="font-size:11px;background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:20px;font-weight:600">↩ ${reenvios} reenvío${reenvios > 1 ? 's' : ''}</span>` : ''}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="verManifiesto(${i})">👁 Ver</button>
+          <button class="btn btn-outline btn-sm" onclick="reimprimirIdx(${i})">🖨 Reimprimir</button>
+          <button class="btn btn-sm" style="background:#fff0f0;color:var(--danger);border:1px solid #fecaca" onclick="eliminarManifiesto(${i})">🗑 Eliminar</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function verManifiesto(idx) {
+  const m = getManifests()[idx];
+  if (!m) return;
+  state.viewingManifest = m;
+  const [y, mo, d] = m.fecha.split('-');
+  const fechaStr = `${d}/${mo}/${y}`;
+  const total = (m.paquetes || []).length;
+  document.getElementById('modalHistoryTitle').textContent = `Manifiesto N° ${m.num} — ${fechaStr}`;
+  document.getElementById('modalHistoryContent').innerHTML = `
+    <div style="font-size:13px;color:var(--gray-600);margin-bottom:16px;line-height:1.8">
+      <strong>Chofer:</strong> ${m.chofer} &nbsp;|&nbsp;
+      <strong>Courier:</strong> ${m.courier || '—'} &nbsp;|&nbsp;
+      <strong>Despachador:</strong> ${m.despachador || '—'} &nbsp;|&nbsp;
+      <strong>Total:</strong> ${total} paquetes
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--gray-50)">
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--gray-200)">#</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--gray-200)">N° Seguimiento</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--gray-200)">Transportista</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--gray-200)">Hora</th>
+        <th style="padding:8px 12px;text-align:left;border-bottom:1px solid var(--gray-200)">Estado</th>
+      </tr></thead>
+      <tbody>
+        ${(m.paquetes || []).map((p, i) => `
+          <tr style="${p.reenvio ? 'background:#eff6ff' : p.warnDupe ? 'background:#fffbeb' : ''}">
+            <td style="padding:7px 12px;border-bottom:1px solid var(--gray-100)">${i + 1}</td>
+            <td style="padding:7px 12px;border-bottom:1px solid var(--gray-100);font-family:monospace">${p.numero}</td>
+            <td style="padding:7px 12px;border-bottom:1px solid var(--gray-100)">${p.transportista || m.courier}</td>
+            <td style="padding:7px 12px;border-bottom:1px solid var(--gray-100);color:var(--gray-400)">${p.hora || ''}</td>
+            <td style="padding:7px 12px;border-bottom:1px solid var(--gray-100)">${p.reenvio ? '<span style="font-size:11px;font-weight:700;color:#1d4ed8">REENVÍO</span>' : p.warnDupe ? '<span style="font-size:11px;color:#92400e">⚠ REVISADO</span>' : ''}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+  document.getElementById('modalHistory').classList.add('open');
+}
+
+function reimprimirIdx(idx) { const m = getManifests()[idx]; if (m) { state.viewingManifest = m; reimprimirManifiesto(); } }
+
+function reimprimirManifiesto() {
+  const m = state.viewingManifest;
+  if (!m) return;
+  cerrarModal('modalHistory');
+  const [y, mo, d] = m.fecha.split('-');
+  const fechaStr = `${d}/${mo}/${y}`;
+  const total = (m.paquetes || []).length;
+  const semana = m.semana || getWeekNumber(new Date(m.fecha + 'T12:00:00'));
+  const mesAño = m.mesAño || getMesAño(m.fecha);
+  document.getElementById('pMeta').innerHTML = `
+    <strong>Manifiesto N° ${m.num}</strong><br>
+    Fecha: ${fechaStr} &nbsp;|&nbsp; Semana ${semana}<br>
+    Courier: <strong>${m.courier || '—'}</strong><br>
+    Reimpresión: ${new Date().toLocaleString('es-CL')}`;
+  document.getElementById('pSummary').innerHTML = `
+    <div class="print-summary-box"><div class="ps-num">${total}</div><div class="ps-label">Total Paquetes</div></div>
+    <div class="print-summary-box"><div class="ps-num" style="font-size:18px;padding-top:6px">${m.courier || '—'}</div><div class="ps-label">Courier</div></div>
+    <div class="print-summary-box"><div class="ps-num" style="font-size:18px;padding-top:6px">${mesAño}</div><div class="ps-label">Período</div></div>`;
+  document.getElementById('pTableBody').innerHTML = (m.paquetes || []).map((p, i) => `
+    <tr><td>${i + 1}</td>
+    <td class="mono">${p.numero}${p.reenvio ? ' <span style="font-size:10px;font-weight:700;color:#FF4713;background:#fff0ea;padding:1px 4px;border-radius:3px;vertical-align:middle">REENVÍO</span>' : ''}</td>
+    <td>${p.transportista || m.courier}</td></tr>`).join('');
+  document.getElementById('pChoferName').textContent = m.despachador || m.chofer;
+  document.getElementById('pFooter').textContent = `ET Brands — Manifiesto N° ${m.num} | ${fechaStr} | Total: ${total} paquetes | Reimpresión: ${new Date().toLocaleString('es-CL')}`;
+  document.getElementById('printDoc').style.display = 'block';
+  setTimeout(() => { window.print(); document.getElementById('printDoc').style.display = 'none'; }, 400);
+}
+
+function eliminarManifiesto(idx) {
+  if (!confirm('¿Eliminar este manifiesto del historial local?\n\nNota: si ya se sincronizó, seguirá guardado en Google Sheets.')) return;
+  const manifests = getManifests();
+  manifests.splice(idx, 1);
+  saveManifests(manifests);
+  renderHistory();
+}
+function confirmarLimpiarHistorial() {
+  if (!confirm('¿Limpiar TODO el historial local?\n\nLos manifiestos ya sincronizados seguirán en Google Sheets. Esta acción no se puede deshacer localmente.')) return;
+  saveManifests([]);
+  renderHistory();
+}
+function exportarHistorialCSV() {
+  const manifests = getManifests();
+  if (!manifests.length) { alert('No hay datos para exportar'); return; }
+  const rows = [['N° Seguimiento','Fecha','Transportista','Chofer','Despachador','Mes-Año','Semana','N° Manifiesto','Reenvío','Alerta Dupe']];
+  manifests.forEach(m => {
+    (m.paquetes || []).forEach(p => {
+      rows.push([p.numero, m.fecha, p.transportista || m.courier, m.chofer, m.despachador || '', m.mesAño || '', m.semana || '', m.num, p.reenvio ? 'Sí' : 'No', p.warnDupe ? 'Sí' : 'No']);
+    });
+  });
+  downloadCSV(rows, `historial_manifiestos_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+// ==========================================
+// CONFIGURACIÓN
+// ==========================================
+function renderSettingsScreen() {
+  const s = getSettings();
+  const urlInput = document.getElementById('gSheetUrl');
+  if (urlInput) urlInput.value = s.gSheetUrl || '';
+
+  const pend = getSyncQueue().length;
+  const btnQ = document.getElementById('btnSyncQueue');
+  if (btnQ) btnQ.textContent = pend ? `🔁 Sincronizar pendientes (${pend})` : '🔁 Sincronizar pendientes';
+
+  const chofList = document.getElementById('choferList');
+  if (chofList) {
+    chofList.innerHTML = s.choferes.map((c, i) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--gray-100)">
+        <span style="font-size:14px">${c}</span>
+        <button onclick="eliminarChofer(${i})" style="background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:14px;padding:2px 6px" title="Eliminar">✕</button>
+      </div>`).join('');
+  }
+  const carrList = document.getElementById('carrierList');
+  if (carrList) {
+    carrList.innerHTML = s.transportistas.map((t, i) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--gray-100)">
+        <span style="font-size:14px">${t}</span>
+        <button onclick="eliminarTransportista(${i})" style="background:none;border:none;color:var(--gray-400);cursor:pointer;font-size:14px;padding:2px 6px" title="Eliminar">✕</button>
+      </div>`).join('');
+  }
+}
+function agregarChofer() {
+  const input = document.getElementById('newChoferSetting');
+  const nombre = input.value.trim();
+  if (!nombre) return;
+  const s = getSettings();
+  if (!s.choferes.includes(nombre)) { s.choferes.push(nombre); saveSettings(s); input.value = ''; renderSettingsScreen(); renderSetup(); }
+  else alert('Ya existe ese chofer');
+}
+function eliminarChofer(idx) { const s = getSettings(); s.choferes.splice(idx, 1); saveSettings(s); renderSettingsScreen(); renderSetup(); }
+function agregarTransportista() {
+  const input = document.getElementById('newCarrier');
+  const nombre = input.value.trim();
+  if (!nombre) return;
+  const s = getSettings();
+  if (!s.transportistas.includes(nombre)) { s.transportistas.push(nombre); saveSettings(s); input.value = ''; renderSettingsScreen(); renderSetup(); }
+  else alert('Ya existe ese transportista');
+}
+function eliminarTransportista(idx) { const s = getSettings(); s.transportistas.splice(idx, 1); saveSettings(s); renderSettingsScreen(); renderSetup(); }
+
+function guardarSettings() {
+  const s = getSettings();
+  const nuevaUrl = document.getElementById('gSheetUrl').value.trim();
+  const cambio = nuevaUrl !== s.gSheetUrl;
+  s.gSheetUrl = nuevaUrl;
+  saveSettings(s);
+  alert('✅ Configuración guardada');
+  if (nuevaUrl && cambio) { pullLedgerFromGSheets().then(() => processSyncQueue()); }
+  else if (!nuevaUrl) setSyncStatus('idle', 'Solo local');
+}
+
+// ==========================================
+// APPS SCRIPT CODE (v2 — lectura + escritura + anti-duplicados)
+// ==========================================
+const APPS_SCRIPT_CODE = `// ET Brands — Manifiesto Sync v3.0 (registro compartido)
+// Escritura + lectura para reconstruir el historial completo en todos los equipos.
+// INSTRUCCIONES: Extensiones -> Apps Script -> pegar -> Guardar
+// -> Implementar -> Administrar implementaciones -> Editar (lapiz)
+//    -> Version: Nueva version -> Implementar  (la URL /exec NO cambia)
+
+const SHEET_NAME = 'Base de datos';
+const HEADERS = ['ID Manifiesto','N° Manifiesto','Fecha','N° de seguimiento','Transportista','Chofer','Despachador','Hora','Reenvío','Mes - año','N° semana','Row ID'];
+
+function getSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAME) || ss.getActiveSheet();
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(HEADERS);
+    // Forzar texto en columnas sensibles (evita que Sheets redondee trackings largos o cambie fechas/horas)
+    ['A:A','C:C','D:D','H:H','L:L'].forEach(function(col){ sh.getRange(col).setNumberFormat('@'); });
+  }
+  return sh;
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sh = getSheet_();
+    const last = sh.getLastRow();
+    // Clave anti-duplicado: Row ID (columna 12). Reintentar es seguro.
+    const existing = {};
+    if (last > 1) {
+      const ids = sh.getRange(2, 12, last - 1, 1).getValues();
+      ids.forEach(r => { existing[String(r[0])] = true; });
+    }
+    let added = 0, skipped = 0;
+    (data.rows || []).forEach(row => {
+      const rid = String(row.rowId || '');
+      if (rid && existing[rid]) { skipped++; return; }
+      sh.appendRow([row.id || '', row.manifiestoNum || '', row.fecha || '', row.tracking || '', row.transportista || '', row.chofer || '', row.despachador || '', row.hora || '', row.reenvio || '', row.mesAño || '', row.semana || '', rid]);
+      if (rid) existing[rid] = true;
+      added++;
+    });
+    return json_({ ok: true, added: added, skipped: skipped });
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
+}
+
+function doGet(e) {
+  try {
+    const p = (e && e.parameter) ? e.parameter : {};
+    if (p.test) return json_({ ok: true, status: 'ET Brands Sync activo' });
+    if (p.action === 'ledger') {
+      const sh = getSheet_();
+      const last = sh.getLastRow();
+      const ledger = [];
+      if (last > 1) {
+        const vals = sh.getRange(2, 1, last - 1, 12).getValues();
+        vals.forEach(r => {
+          if (r[3] === '' || r[3] === null) return;
+          ledger.push({
+            id: String(r[0]), manifiestoNum: r[1], fecha: r[2], tracking: String(r[3]),
+            transportista: r[4], chofer: r[5], despachador: r[6], hora: r[7],
+            reenvio: r[8], mesAño: r[9], semana: r[10], rowId: String(r[11])
+          });
+        });
+      }
+      return json_({ ok: true, ledger: ledger });
+    }
+    return ContentService.createTextOutput('ET Brands Manifiesto Sync — activo').setMimeType(ContentService.MimeType.TEXT);
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  }
+}`;
+
+function copiarAppsScript() {
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE)
+    .then(() => {
+      alert('✅ Código copiado al portapapeles');
+      const el = document.getElementById('appsScriptInstructions');
+      if (el) { el.style.display = 'block'; el.innerHTML = '<strong>Listo.</strong> Ahora pégalo en Apps Script (Extensiones → Apps Script), guarda, e Implementa como aplicación web. Copia la URL <strong>/exec</strong> y pégala arriba.'; }
+    })
+    .catch(() => {
+      const el = document.getElementById('appsScriptInstructions');
+      if (el) { el.style.display = 'block'; el.innerHTML = '<strong>Copia manual:</strong><br><textarea readonly style="width:100%;height:160px;font-family:monospace;font-size:11px;margin-top:8px">' + APPS_SCRIPT_CODE.replace(/</g,'&lt;') + '</textarea>'; }
+    });
+}
+
+// ==========================================
+// UTILIDADES
+// ==========================================
+function getWeekNumber(d) {
+  const date = new Date(d);
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+  const yearStart = new Date(date.getFullYear(), 0, 1);
+  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+}
+function getMesAño(fechaStr) {
+  const d = typeof fechaStr === 'string' ? new Date(fechaStr + 'T12:00:00') : fechaStr;
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return meses[d.getMonth()] + '-' + String(d.getFullYear()).slice(2);
+}
+function cerrarModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+  if (state.screen === 'scan') focusScanInput();
+}
+function downloadCSV(rows, filename) {
+  let csv;
+  if (typeof rows === 'string') csv = rows;
+  else csv = rows.map(r => r.map(v => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) {
+    if (e.target.id === 'modalCamara') { cerrarCamara(); return; }
+    e.target.classList.remove('open');
+    if (state.screen === 'scan') focusScanInput();
+  }
+});
+
+// ==========================================
+// ÓRDENES DEL DÍA
+// ==========================================
+let ordenesState = { numeros: [], fecha: null, cruce: [], filtro: 'all' };
+
+function getOrdenesStorage() { try { return JSON.parse(localStorage.getItem('etb_ordenes_dia') || 'null'); } catch { return null; } }
+function saveOrdenesStorage(data) { localStorage.setItem('etb_ordenes_dia', JSON.stringify(data)); }
+
+function renderOrdenesScreen() {
+  const fi = document.getElementById('ordenesFecha');
+  if (!fi.value) fi.value = new Date().toISOString().split('T')[0];
+
+  const stored = getOrdenesStorage();
+  const today = new Date().toISOString().split('T')[0];
+  if (stored && stored.fecha === today && stored.numeros && stored.numeros.length) {
+    ordenesState.numeros = stored.numeros;
+    ordenesState.fecha = stored.fecha;
+    fi.value = stored.fecha;
+    cruzarOrdenes();
+  }
+
+  const dz = document.getElementById('ordenesDropZone');
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) procesarArchivoOrdenes(file);
+  });
+}
+function handleOrdenesFile(event) { const file = event.target.files[0]; if (file) procesarArchivoOrdenes(file); }
+
+function procesarArchivoOrdenes(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+  if (ext === 'xlsx' || ext === 'xls') {
+    reader.onload = function(e) {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        const nums = [];
+        data.forEach(row => { row.forEach(cell => { const s = String(cell || '').trim().replace(/[^0-9A-Za-z\-]/g, ''); if (s.length >= 5) nums.push(s); }); });
+        aplicarOrdenesNums(nums);
+      } catch (err) { alert('Error leyendo el Excel: ' + err.message); }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    reader.onload = function(e) {
+      const lines = e.target.result.split(/\r?\n/);
+      const nums = lines.map(l => l.trim().replace(/[^0-9A-Za-z\-]/g, '')).filter(l => l.length >= 5);
+      aplicarOrdenesNums(nums);
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+}
+function cargarOrdenesDesdeTexto() {
+  const txt = document.getElementById('ordenesPaste').value;
+  const nums = txt.split(/\r?\n/).map(l => l.trim().replace(/[^0-9A-Za-z\-]/g, '')).filter(l => l.length >= 5);
+  if (!nums.length) { alert('No se encontraron números válidos'); return; }
+  aplicarOrdenesNums(nums);
+}
+function aplicarOrdenesNums(nums) {
+  ordenesState.numeros = [...new Set(nums)];
+  ordenesState.fecha = document.getElementById('ordenesFecha').value || new Date().toISOString().split('T')[0];
+  saveOrdenesStorage({ fecha: ordenesState.fecha, numeros: ordenesState.numeros });
+  document.getElementById('ordenesPaste').value = '';
+  cruzarOrdenes();
+}
+
+function cruzarOrdenes() {
+  if (!ordenesState.numeros.length) return;
+  const fecha = ordenesState.fecha;
+  const manifests = getManifests().filter(m => m.fecha === fecha);
+
+  const despachados = {};
+  manifests.forEach(m => {
+    (m.paquetes || []).forEach(p => {
+      if (!despachados[p.numero]) despachados[p.numero] = { manifiesto: `N° ${m.num}`, chofer: m.chofer, hora: p.hora || '' };
+    });
+  });
+  // También considerar el registro central (Sheets) para esa fecha
+  const led = getRemoteLedger();
+  Object.keys(led).forEach(num => {
+    const r = led[num];
+    if (r.fechaISO === fecha && !despachados[num]) {
+      despachados[num] = { manifiesto: 'N° ' + (r.num || '?'), chofer: r.chofer || '', hora: '' };
+    }
+  });
+
+  ordenesState.cruce = ordenesState.numeros.map(num => ({
+    numero: num,
+    despachado: !!despachados[num],
+    manifiesto: despachados[num] ? despachados[num].manifiesto : null,
+    chofer: despachados[num] ? despachados[num].chofer : null,
+    hora: despachados[num] ? despachados[num].hora : null,
+  }));
+
+  const total = ordenesState.cruce.length;
+  const ok = ordenesState.cruce.filter(o => o.despachado).length;
+  const pend = total - ok;
+  document.getElementById('oTotal').textContent = total;
+  document.getElementById('oOk').textContent = ok;
+  document.getElementById('oPend').textContent = pend;
+  document.getElementById('oProgressFill').style.width = total ? Math.round(ok / total * 100) + '%' : '0%';
+
+  document.getElementById('ordenesResultado').style.display = 'block';
+  document.getElementById('cardCargaOrdenes').style.marginBottom = '16px';
+  document.getElementById('btnResetOrdenes').style.display = 'inline-flex';
+  renderOrdenesList();
+}
+
+function filtrarOrdenes(f) {
+  ordenesState.filtro = f;
+  document.querySelectorAll('.ordenes-badge').forEach(b => b.classList.remove('active-filter'));
+  document.getElementById('filter' + (f === 'all' ? 'All' : f === 'ok' ? 'Ok' : 'Pend')).classList.add('active-filter');
+  renderOrdenesList();
+}
+function renderOrdenesList() {
+  const search = (document.getElementById('ordenesSearch').value || '').trim().toLowerCase();
+  let rows = ordenesState.cruce;
+  if (ordenesState.filtro === 'ok') rows = rows.filter(o => o.despachado);
+  if (ordenesState.filtro === 'pend') rows = rows.filter(o => !o.despachado);
+  if (search) rows = rows.filter(o => o.numero.toLowerCase().includes(search));
+  const list = document.getElementById('ordenesList');
+  if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray-400);font-size:13px">Sin resultados</div>'; return; }
+  list.innerHTML = rows.map(o => `
+    <div class="ordenes-row ${o.despachado ? 'row-ok' : 'row-pend'}">
+      <span class="ordenes-row-status ${o.despachado ? 'ok' : 'pend'}">${o.despachado ? '✅' : '⏳'}</span>
+      <span class="ordenes-row-num">${o.numero}</span>
+      ${o.despachado
+        ? `<span class="ordenes-row-manif">${o.manifiesto} · ${o.chofer}${o.hora ? ' · ' + o.hora : ''}</span>`
+        : '<span class="ordenes-row-manif" style="color:#f97316">Sin despachar</span>'}
+    </div>`).join('');
+}
+function resetOrdenes() {
+  if (!confirm('¿Limpiar el listado de órdenes del día?')) return;
+  ordenesState = { numeros: [], fecha: null, cruce: [], filtro: 'all' };
+  localStorage.removeItem('etb_ordenes_dia');
+  document.getElementById('ordenesResultado').style.display = 'none';
+  document.getElementById('btnResetOrdenes').style.display = 'none';
+  document.getElementById('ordenesFecha').value = new Date().toISOString().split('T')[0];
+  document.getElementById('ordenesPaste').value = '';
+}
+function exportarPendientes() {
+  const pend = ordenesState.cruce.filter(o => !o.despachado);
+  if (!pend.length) { alert('No hay pendientes para exportar'); return; }
+  const rows = [['N° Seguimiento', 'Estado']].concat(pend.map(o => [o.numero, 'Pendiente']));
+  downloadCSV(rows, `pendientes_${ordenesState.fecha || 'hoy'}.csv`);
+}
+</script>
+</body>
+</html>
