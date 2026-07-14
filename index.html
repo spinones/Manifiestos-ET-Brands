@@ -1261,10 +1261,42 @@ function getSettings() {
 function saveSettings(s) { localStorage.setItem('etb_settings', JSON.stringify(s)); }
 
 function getManifests() {
-  try { return JSON.parse(localStorage.getItem('etb_manifests') || '[]'); }
-  catch { return []; }
+  try {
+    var arr = JSON.parse(localStorage.getItem('etb_manifests') || '[]');
+    // Seguridad: nunca mantener el manifiesto "HISTÓRICO" gigante en la memoria del equipo (llena el celular)
+    if (Array.isArray(arr) && arr.some(function (m) { return String(m.id) === 'HISTORICO'; })) {
+      arr = arr.filter(function (m) { return String(m.id) !== 'HISTORICO'; });
+      try { localStorage.setItem('etb_manifests', JSON.stringify(arr)); } catch (e) {}
+    }
+    return arr;
+  } catch (e) { return []; }
 }
-function saveManifests(m) { localStorage.setItem('etb_manifests', JSON.stringify(m)); }
+// ---- Auto-limpieza de almacenamiento (evita QuotaExceededError por datos históricos viejos) ----
+function limpiarAlmacenamientoPesado() {
+  try {
+    // Manifiestos "HISTORICO" gigantes guardados por versiones antiguas de la app
+    var raw = localStorage.getItem('etb_manifests') || '[]';
+    if (raw.indexOf('"HISTORICO"') >= 0 || raw.length > 1500000) {
+      var arr = JSON.parse(raw).filter(function (m) { return String(m.id) !== 'HISTORICO' && String(m.chofer) !== 'Histórico'; });
+      // Si aun así es enorme, recortar manifiestos con miles de paquetes (corruptos)
+      arr = arr.filter(function (m) { return (m.paquetes || []).length <= 2000; });
+      localStorage.setItem('etb_manifests', JSON.stringify(arr));
+    }
+    // Índice remoto inflado con miles de históricos (se rearma liviano al sincronizar)
+    var led = localStorage.getItem('etb_remote_ledger') || '';
+    if (led.length > 1500000) localStorage.removeItem('etb_remote_ledger');
+  } catch (e) { console.warn('Limpieza de almacenamiento:', e); try { localStorage.removeItem('etb_remote_ledger'); } catch (e2) {} }
+}
+limpiarAlmacenamientoPesado(); // se ejecuta al cargar la app: repara equipos con la memoria llena
+
+function saveManifests(m) {
+  try { localStorage.setItem('etb_manifests', JSON.stringify(m)); }
+  catch (e) {
+    limpiarAlmacenamientoPesado();
+    try { localStorage.setItem('etb_manifests', JSON.stringify(m)); }
+    catch (e2) { console.warn('No se pudo guardar manifiestos:', e2); }
+  }
+}
 
 // ---- Cola de sincronización pendiente (a prueba de cortes de red) ----
 function getSyncQueue() { try { return JSON.parse(localStorage.getItem('etb_sync_queue') || '[]'); } catch { return []; } }
@@ -1273,8 +1305,32 @@ function enqueueSync(payload) { const q = getSyncQueue(); q.push(payload); saveS
 
 // ---- Índice central de tracking (espejo local de la planilla) ----
 // numero -> { num, fecha(dd/mm/yyyy), fechaISO, chofer, courier }
-function getRemoteLedger() { try { return JSON.parse(localStorage.getItem('etb_remote_ledger') || '{}'); } catch { return {}; } }
-function saveRemoteLedger(l) { localStorage.setItem('etb_remote_ledger', JSON.stringify(l)); }
+function getRemoteLedger() {
+  try {
+    var o = JSON.parse(localStorage.getItem('etb_remote_ledger') || '{}');
+    // Si viene el índice viejo inflado con miles de históricos, lo descartamos (se rearma liviano al sincronizar)
+    if (o && Object.keys(o).length > 5000) { try { localStorage.removeItem('etb_remote_ledger'); } catch (e) {} return {}; }
+    return o;
+  } catch (e) { return {}; }
+}
+function saveRemoteLedger(l) {
+  try { localStorage.setItem('etb_remote_ledger', JSON.stringify(l)); }
+  catch (e) {
+    limpiarAlmacenamientoPesado();
+    try { localStorage.setItem('etb_remote_ledger', JSON.stringify(l)); }
+    catch (e2) { console.warn('No se pudo guardar el índice:', e2); }
+  }
+}
+// Índice compacto de números históricos (SOLO el número, para no llenar la memoria del celular)
+function getHistSet() { try { return JSON.parse(localStorage.getItem('etb_hist_set') || '{}'); } catch (e) { return {}; } }
+function saveHistSet(s) {
+  try { localStorage.setItem('etb_hist_set', JSON.stringify(s)); }
+  catch (e) {
+    limpiarAlmacenamientoPesado();
+    try { localStorage.setItem('etb_hist_set', JSON.stringify(s)); }
+    catch (e2) { console.warn('No se pudo guardar el histórico:', e2); }
+  }
+}
 
 // ==========================================
 // INDICADOR DE SINCRONIZACIÓN
@@ -1335,7 +1391,7 @@ function showScreen(name) {
 
   if (name === 'setup') renderSetup();
   if (name === 'scan') { focusScanInput(); renderScanScreen(); }
-  if (name === 'history') { renderHistory(); if (getSettings().gSheetUrl) pullLedgerFromGSheets(); }
+  if (name === 'history') { renderHistory(); if (getSettings().gSheetUrl) pullLedgerFromGSheets({ silencioso: true }); }
   if (name === 'settings') renderSettingsScreen();
   if (name === 'ordenes') renderOrdenesScreen();
 
@@ -1499,10 +1555,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlInput = document.getElementById('gSheetUrl');
   if (urlInput) urlInput.value = settings.gSheetUrl || '';
 
-  // Conexión con Google Sheets: cargar registro central + reintentar pendientes
+  // Conexión con Google Sheets: cargar registro central + reintentar pendientes (silencioso al abrir)
   if (settings.gSheetUrl) {
     setSyncStatus('syncing', 'Conectando a Sheets...');
-    pullLedgerFromGSheets().then(() => processSyncQueue());
+    pullLedgerFromGSheets({ silencioso: true }).then(() => processSyncQueue());
   } else {
     setSyncStatus('idle', 'Solo local');
   }
@@ -1548,6 +1604,9 @@ function processScan(raw) {
   if (!foundEnManifiestoPrevio) {
     const r = getRemoteLedger()[parsed.numero];
     if (r) foundEnManifiestoPrevio = { num: r.num, fecha: r.fecha, chofer: r.chofer, courier: r.courier };
+  }
+  if (!foundEnManifiestoPrevio && getHistSet()[parsed.numero]) {
+    foundEnManifiestoPrevio = { num: 'H', fecha: 'histórico', chofer: 'Histórico', courier: 'Histórico' };
   }
 
   const paquete = {
@@ -1996,12 +2055,16 @@ async function pullLedgerFromGSheets(opts) {
     };
     const esReenvio = (v) => { const s = String(v).toLowerCase().trim(); return s === 'sí' || s === 'si' || s === 'true'; };
 
-    // Reconstruir manifiestos del equipo agrupando las filas por ID de manifiesto
+    // Reconstruir manifiestos del equipo. Los HISTÓRICOS (miles de números) NO se guardan como
+    // manifiesto completo: solo su número en un índice compacto, para no llenar la memoria del celular.
     const byId = {};
-    const led = getRemoteLedger();
+    const led = {};
+    const hist = {};
     data.ledger.forEach(r => {
       const tracking = String(r.tracking || '').trim();
       if (!tracking) return;
+      const esHistorico = String(r.id) === 'HISTORICO' || String(r.chofer) === 'Histórico';
+      if (esHistorico) { hist[tracking] = 1; return; }
       const fechaISO = isoF(r.fecha);
       const id = (r.id && String(r.id).trim()) ? String(r.id) : (fechaISO + '|' + r.manifiestoNum + '|' + (r.chofer || '') + '|' + (r.transportista || ''));
       if (!byId[id]) {
@@ -2013,22 +2076,17 @@ async function pullLedgerFromGSheets(opts) {
         };
       }
       const ts = (r.rowId && String(r.rowId).indexOf('-') >= 0) ? Number(String(r.rowId).split('-').pop()) : Date.now();
-      byId[id].paquetes.push({
-        numero: tracking,
-        transportista: r.transportista || byId[id].courier,
-        hora: horaF(r.hora),
-        reenvio: esReenvio(r.reenvio),
-        timestamp: ts
-      });
+      byId[id].paquetes.push({ numero: tracking, transportista: r.transportista || byId[id].courier, hora: horaF(r.hora), reenvio: esReenvio(r.reenvio), timestamp: ts });
       if (!led[tracking]) {
         const [y, mo, d] = (fechaISO || '--').split('-');
         led[tracking] = { num: r.manifiestoNum, fecha: (fechaISO ? `${d}/${mo}/${y}` : '—'), fechaISO: fechaISO, chofer: r.chofer || '', courier: r.transportista || '' };
       }
     });
     saveRemoteLedger(led);
+    saveHistSet(hist);
 
-    // Fusionar: manifiestos del equipo (Sheets) + locales que aún no se han sincronizado
-    const local = getManifests();
+    // Fusionar: manifiestos reales del equipo + locales aún no sincronizados (sin los históricos)
+    const local = getManifests().filter(m => String(m.id) !== 'HISTORICO');
     const remoteIds = new Set(Object.keys(byId));
     const localPendientes = local.filter(m => !remoteIds.has(String(m.id)));
     const merged = [...Object.values(byId), ...localPendientes];
@@ -2054,8 +2112,12 @@ async function pullLedgerFromGSheets(opts) {
     if (opts.alert) alert('✅ Registro del equipo actualizado: ' + Object.keys(byId).length + ' manifiestos visibles para todos');
     return true;
   } catch (err) {
-    setSyncStatus('error', 'No se pudo leer Sheets');
-    if (opts.alert) alert('⚠ No se pudo leer la planilla. Verifica la URL /exec y que el acceso sea "Cualquier persona".');
+    const esCupo = err && (err.name === 'QuotaExceededError' || String(err).indexOf('exceeded the quota') >= 0);
+    if (esCupo) limpiarAlmacenamientoPesado();
+    setSyncStatus('error', opts.silencioso ? 'Sin conexión (datos locales OK)' : (esCupo ? 'Memoria del navegador llena — limpiada, reintenta' : 'No se pudo leer Sheets'));
+    if (opts.alert && !opts.silencioso) alert(esCupo
+      ? '⚠ La memoria del navegador estaba llena con datos antiguos. Ya se limpió automáticamente: toca "☁️ Recargar de Sheets" otra vez.'
+      : '⚠ No se pudo leer la planilla. Verifica la conexión, la URL /exec y que el acceso sea "Cualquier persona".');
     console.warn('GSheets pull error:', err);
     return false;
   }
@@ -3026,5 +3088,6 @@ function exportarPendientes() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
+<!-- v4.1 auto-limpieza de almacenamiento -->
 </body>
 </html>
