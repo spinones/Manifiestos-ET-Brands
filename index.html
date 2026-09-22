@@ -1337,9 +1337,16 @@ function parseBarcode(raw) {
     if (m) return { numero: m[1], transportista: 'Recibelo' };
   }
 
-  // 3) FALABELLA (código de barras): el N° de envío SIEMPRE parte con 32 (captura la barra de arriba)
+  // 3) FALABELLA (código de barras clásico): el N° de envío SIEMPRE parte con 32 (captura la barra de arriba)
   if (/^32\d{6,}$/.test(raw)) {
     return { numero: raw, transportista: 'Falabella' };
+  }
+
+  // 3b) FALABELLA 3PL Directo (etiqueta nueva): el QR trae el Tracking Code completo, ej. PKG00002L3NU7.
+  //     Sin esta regla, caía al "último recurso" (5) y solo rescataba el "00002" fijo de en medio,
+  //     que Sheets guardaba como número y le borraba los ceros → quedaba "2" para TODAS las etiquetas.
+  if (/^PKG[A-Z0-9]{6,}$/i.test(raw)) {
+    return { numero: raw.toUpperCase(), transportista: 'Falabella' };
   }
 
   // 4) Número simple directo (ej. Recíbelo que entrega el número tal cual, como 27286)
@@ -2692,20 +2699,31 @@ function aplicarOrdenesNums(nums) {
 function cruzarOrdenes() {
   if (!ordenesState.numeros.length) return;
   const fecha = ordenesState.fecha;
-  const manifests = getManifests().filter(m => m.fecha === fecha);
 
   const despachados = {};
-  manifests.forEach(m => {
+
+  // 1) Manifiestos locales — TODO el historial (no solo el día cargado),
+  //    para pescar pedidos despachados en días anteriores.
+  getManifests().forEach(m => {
     (m.paquetes || []).forEach(p => {
-      if (!despachados[p.numero]) despachados[p.numero] = { manifiesto: `N° ${m.num}`, chofer: m.chofer, hora: p.hora || '' };
+      if (!despachados[p.numero]) despachados[p.numero] = { manifiesto: `N° ${m.num}`, chofer: m.chofer, hora: p.hora || '', fecha: m.fecha || '' };
     });
   });
-  // También considerar el registro central (Sheets) para esa fecha
+
+  // 2) Registro central (Sheets) — toda la base, no solo esa fecha
   const led = getRemoteLedger();
   Object.keys(led).forEach(num => {
-    const r = led[num];
-    if (r.fechaISO === fecha && !despachados[num]) {
-      despachados[num] = { manifiesto: 'N° ' + (r.num || '?'), chofer: r.chofer || '', hora: '' };
+    if (!despachados[num]) {
+      const r = led[num];
+      despachados[num] = { manifiesto: 'N° ' + (r.num || '?'), chofer: r.chofer || '', hora: '', fecha: r.fecha || r.fechaISO || '' };
+    }
+  });
+
+  // 3) Histórico importado (~22.000 números). Solo trae el número, sin detalle de manifiesto/fecha.
+  const hist = getHistSet();
+  Object.keys(hist).forEach(num => {
+    if (!despachados[num]) {
+      despachados[num] = { manifiesto: 'Histórico', chofer: '', hora: '', fecha: '' };
     }
   });
 
@@ -2715,6 +2733,7 @@ function cruzarOrdenes() {
     manifiesto: despachados[num] ? despachados[num].manifiesto : null,
     chofer: despachados[num] ? despachados[num].chofer : null,
     hora: despachados[num] ? despachados[num].hora : null,
+    fechaDespacho: despachados[num] ? despachados[num].fecha : null,
   }));
 
   const total = ordenesState.cruce.length;
@@ -2745,14 +2764,22 @@ function renderOrdenesList() {
   if (search) rows = rows.filter(o => o.numero.toLowerCase().includes(search));
   const list = document.getElementById('ordenesList');
   if (!rows.length) { list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray-400);font-size:13px">Sin resultados</div>'; return; }
-  list.innerHTML = rows.map(o => `
-    <div class="ordenes-row ${o.despachado ? 'row-ok' : 'row-pend'}">
-      <span class="ordenes-row-status ${o.despachado ? 'ok' : 'pend'}">${o.despachado ? '✅' : '⏳'}</span>
+  list.innerHTML = rows.map(o => {
+    if (!o.despachado) {
+      return `<div class="ordenes-row row-pend">
+        <span class="ordenes-row-status pend">⏳</span>
+        <span class="ordenes-row-num">${o.numero}</span>
+        <span class="ordenes-row-manif" style="color:#f97316">Sin despachar</span>
+      </div>`;
+    }
+    const otroDia = o.fechaDespacho && o.fechaDespacho !== ordenesState.fecha;
+    const etiquetaDia = otroDia ? ` · <b style="color:#f97316">despachado el ${o.fechaDespacho}</b>` : '';
+    return `<div class="ordenes-row row-ok">
+      <span class="ordenes-row-status ok">✅</span>
       <span class="ordenes-row-num">${o.numero}</span>
-      ${o.despachado
-        ? `<span class="ordenes-row-manif">${o.manifiesto} · ${o.chofer}${o.hora ? ' · ' + o.hora : ''}</span>`
-        : '<span class="ordenes-row-manif" style="color:#f97316">Sin despachar</span>'}
-    </div>`).join('');
+      <span class="ordenes-row-manif">${o.manifiesto}${o.chofer ? ' · ' + o.chofer : ''}${o.hora ? ' · ' + o.hora : ''}${etiquetaDia}</span>
+    </div>`;
+  }).join('');
 }
 function resetOrdenes() {
   if (!confirm('¿Limpiar el listado de órdenes del día?')) return;
