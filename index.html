@@ -1323,6 +1323,14 @@ function parseBarcode(raw) {
   raw = (raw || '').trim();
   if (!raw) return null;
 
+  // 0) FALABELLA 3PL Directo (QR con JSON: {"origin":"Falabella","url":".../orders/PKG00002L3NU7",...})
+  //    Va PRIMERO: la URL contiene "orders" y si no, la regla de Despáchalo la capturaba y guardaba "00002" → "2".
+  //    Se busca el PKG en cualquier parte del texto (sirve aunque el lector cambie comillas/símbolos por la distribución del teclado).
+  {
+    const pkg = raw.match(/PKG[A-Z0-9]{8,}/i);
+    if (pkg) return { numero: pkg[0].toUpperCase(), transportista: 'Falabella' };
+  }
+
   // 1) DESPÁCHALO (QR con texto estructurado) → número de ORDEN (el que parte con 2, ej. 27276)
   if (/despachalo/i.test(raw) || /traking.?number/i.test(raw) || /order/i.test(raw)) {
     let m = raw.match(/order[^0-9]*([0-9]{3,})/i);        // ...NU?order{ñ{27276  →  27276
@@ -1340,13 +1348,6 @@ function parseBarcode(raw) {
   // 3) FALABELLA (código de barras clásico): el N° de envío SIEMPRE parte con 32 (captura la barra de arriba)
   if (/^32\d{6,}$/.test(raw)) {
     return { numero: raw, transportista: 'Falabella' };
-  }
-
-  // 3b) FALABELLA 3PL Directo (etiqueta nueva): el QR trae el Tracking Code completo, ej. PKG00002L3NU7.
-  //     Sin esta regla, caía al "último recurso" (5) y solo rescataba el "00002" fijo de en medio,
-  //     que Sheets guardaba como número y le borraba los ceros → quedaba "2" para TODAS las etiquetas.
-  if (/^PKG[A-Z0-9]{6,}$/i.test(raw)) {
-    return { numero: raw.toUpperCase(), transportista: 'Falabella' };
   }
 
   // 4) Número simple directo (ej. Recíbelo que entrega el número tal cual, como 27286)
