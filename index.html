@@ -11,6 +11,8 @@
 <meta name="apple-mobile-web-app-title" content="Manifiestos">
 <link id="appleIcon" rel="apple-touch-icon" href="">
 <style>
+/* Bloquea el "deslizar hacia abajo para actualizar" del navegador en celulares */
+html, body { overscroll-behavior-y: none; }
   :root {
     --primary: #FF4713;
     --primary-dark: #1C1C1C;
@@ -373,11 +375,14 @@
 
   /* ---- PRINT / DOCUMENT ---- */
   @media print {
-    body * { visibility: hidden; }
-    #printDoc, #printDoc * { visibility: visible; }
+    /* Se SACA del documento todo lo que no es el manifiesto (display:none), en vez de solo
+       volverlo invisible (visibility:hidden), que dejaba el historial ocupando espacio
+       y generaba más de 100 hojas en blanco. */
+    body > *:not(#printDoc) { display: none !important; }
+    html, body { height: auto !important; overflow: visible !important; background: white !important; }
     #printDoc {
-      position: absolute;
-      top: 0; left: 0;
+      display: block !important;
+      position: static;
       width: 100%;
       background: white;
       padding: 0;
@@ -1222,6 +1227,27 @@ let state = {
   viewingManifest: null,
 };
 
+// Manifiesto en curso: se guarda en el equipo en cada cambio, para no perder el avance si la página se recarga
+const CURRENT_KEY = 'etb_current_manifest';
+function persistCurrentManifest() {
+  try {
+    if (state.currentManifest) localStorage.setItem(CURRENT_KEY, JSON.stringify(state.currentManifest));
+    else localStorage.removeItem(CURRENT_KEY);
+  } catch (e) { console.warn('No se pudo guardar el manifiesto en curso', e); }
+}
+function restoreCurrentManifest() {
+  try {
+    const m = JSON.parse(localStorage.getItem(CURRENT_KEY) || 'null');
+    if (!m || !Array.isArray(m.paquetes)) return false;
+    state.currentManifest = m;
+    document.getElementById('navScan').style.display = 'inline-flex';
+    updateScanUI();
+    showScreen('scan');
+    showFeedback('warn', `Manifiesto N° ${m.num} recuperado — ${m.paquetes.length} paquetes`);
+    return true;
+  } catch (e) { return false; }
+}
+
 function getSettings() {
   const def = {
     choferes: ['Fabian Fuentes', 'Jose Rodriguez', 'Sebastian Acuña'],
@@ -1274,7 +1300,17 @@ function saveManifests(m) {
 // ---- Cola de sincronización pendiente (a prueba de cortes de red) ----
 function getSyncQueue() { try { return JSON.parse(localStorage.getItem('etb_sync_queue') || '[]'); } catch { return []; } }
 function saveSyncQueue(q) { localStorage.setItem('etb_sync_queue', JSON.stringify(q)); }
-function enqueueSync(payload) { const q = getSyncQueue(); q.push(payload); saveSyncQueue(q); }
+function enqueueSync(payload) {
+  // Un solo envío pendiente por manifiesto (si ya estaba en cola, se reemplaza)
+  const q = getSyncQueue().filter(p => p.manifiestoId !== payload.manifiestoId);
+  q.push(payload); saveSyncQueue(q);
+}
+// fetch con tiempo límite: con señal débil no queda "pegado" esperando; falla y pasa a la cola
+function fetchConTimeout(url, opts, ms) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms || 20000);
+  return fetch(url, Object.assign({}, opts || {}, { signal: ctrl.signal })).finally(() => clearTimeout(t));
+}
 
 // ---- Índice central de tracking (espejo local de la planilla) ----
 // numero -> { num, fecha(dd/mm/yyyy), fechaISO, chofer, courier }
@@ -1531,6 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSetup();
   renderHistory();
   renderSettingsScreen();
+  restoreCurrentManifest();
 
   const settings = getSettings();
   const urlInput = document.getElementById('gSheetUrl');
@@ -1544,6 +1581,22 @@ document.addEventListener('DOMContentLoaded', () => {
     setSyncStatus('idle', 'Solo local');
   }
 });
+
+// ==========================================
+// REINTENTO AUTOMÁTICO DE PENDIENTES
+// ==========================================
+function reintentarPendientesSiHay() {
+  if (!getSettings().gSheetUrl || !getSyncQueue().length) return;
+  if (navigator.onLine === false) return;
+  processSyncQueue(false);
+}
+window.addEventListener('online', () => { setSyncStatus('syncing', 'Conexión recuperada...'); setTimeout(reintentarPendientesSiHay, 1500); });
+window.addEventListener('offline', () => {
+  const pend = getSyncQueue().length;
+  setSyncStatus('error', pend ? `Sin conexión — ${pend} pendiente${pend !== 1 ? 's' : ''}` : 'Sin conexión — puedes seguir escaneando');
+});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reintentarPendientesSiHay(); });
+setInterval(reintentarPendientesSiHay, 30000);
 
 function showFeedback(type, msg) {
   const fb = document.getElementById('scanFeedback');
@@ -1651,6 +1704,7 @@ function updateStats() {
 }
 
 function renderScanTable() {
+  persistCurrentManifest();
   const tbody = document.getElementById('scanTableBody');
   const ps = state.currentManifest ? state.currentManifest.paquetes : [];
   if (ps.length === 0) {
@@ -1895,6 +1949,7 @@ function generarDocumento() {
   mergeRowsIntoLedger(buildRows(saved), saved);
 
   state.currentManifest = null;
+  persistCurrentManifest();
 
   // Sincronizar con Google Sheets (con reintento si falla)
   syncToGSheets(saved);
@@ -1950,9 +2005,17 @@ async function syncToGSheets(manifest) {
   const url = getSettings().gSheetUrl;
   if (!url) { setSyncStatus('idle', 'Solo local'); return false; }
   const payload = { action: 'append', manifiestoId: manifest.id, rows: buildRows(manifest) };
+  if (navigator.onLine === false) {
+    enqueueSync(payload);
+    markManifestSynced(manifest.id, false);
+    const pend = getSyncQueue().length;
+    setSyncStatus('error', `Sin conexión — ${pend} pendiente${pend !== 1 ? 's' : ''}, se enviará${pend !== 1 ? 'n' : ''} solo${pend !== 1 ? 's' : ''}`);
+    renderHistory();
+    return false;
+  }
   setSyncStatus('syncing', 'Guardando en Sheets...');
   try {
-    const res = await fetch(url, {
+    const res = await fetchConTimeout(url, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS
       body: JSON.stringify(payload)
@@ -1970,16 +2033,22 @@ async function syncToGSheets(manifest) {
     enqueueSync(payload);
     markManifestSynced(manifest.id, false);
     const pend = getSyncQueue().length;
-    setSyncStatus('error', `Sin conexión — ${pend} pendiente${pend !== 1 ? 's' : ''}`);
+    setSyncStatus('error', `Sin conexión — ${pend} pendiente${pend !== 1 ? 's' : ''}, se enviará${pend !== 1 ? 'n' : ''} solo${pend !== 1 ? 's' : ''}`);
     renderHistory();
     console.warn('GSheets sync error:', err);
     return false;
   }
 }
 
+let syncEnCurso = false;
 async function processSyncQueue(showAlert) {
   const url = getSettings().gSheetUrl;
   if (!url) { if (showAlert) alert('Primero configura la URL de Google Sheets'); return; }
+  if (syncEnCurso) return;
+  syncEnCurso = true;
+  try { await _processSyncQueue(url, showAlert); } finally { syncEnCurso = false; }
+}
+async function _processSyncQueue(url, showAlert) {
   let q = getSyncQueue();
   if (!q.length) {
     setSyncStatus('synced', 'Todo sincronizado');
@@ -1990,11 +2059,14 @@ async function processSyncQueue(showAlert) {
   const remaining = [];
   for (const payload of q) {
     try {
-      const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+      const res = await fetchConTimeout(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (!(data && data.ok)) remaining.push(payload);
     } catch (e) { remaining.push(payload); }
   }
+  const enviados = new Set(q.filter(p => !remaining.includes(p)).map(p => p.manifiestoId));
+  const nuevos = getSyncQueue().filter(p => !q.some(x => x.manifiestoId === p.manifiestoId) && !enviados.has(p.manifiestoId));
+  remaining.push(...nuevos);
   saveSyncQueue(remaining);
   // marcar manifiestos que ya salieron de la cola como sincronizados
   const stillQueuedIds = new Set(remaining.map(p => p.manifiestoId));
@@ -2016,7 +2088,7 @@ async function pullLedgerFromGSheets(opts) {
   if (!url) { if (opts.alert) alert('Configura primero la URL de Google Sheets'); return false; }
   setSyncStatus('syncing', 'Cargando registro...');
   try {
-    const res = await fetch(url + '?action=ledger');
+    const res = await fetchConTimeout(url + '?action=ledger', {}, 45000);
     const data = await res.json();
     if (!(data && data.ok && Array.isArray(data.ledger))) throw new Error('respuesta inválida');
 
@@ -2346,6 +2418,7 @@ function borrarTodoLocal() {
   localStorage.removeItem('etb_sync_queue');
   localStorage.removeItem('etb_ordenes_dia');
   localStorage.removeItem('etb_settings');
+  localStorage.removeItem(CURRENT_KEY);
   const fresh = getSettings();
   fresh.gSheetUrl = url;
   saveSettings(fresh);
